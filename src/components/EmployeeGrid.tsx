@@ -1,32 +1,39 @@
+import { SearchX } from 'lucide-react'
 import type { Employee } from '../types/employee'
 import EmployeeCard from './EmployeeCard'
+import EmptyState from './EmptyState'
 
 interface EmployeeGridProps {
   employees: Employee[]
   onEditEmployee: (employee: Employee) => void
+  onResetFilters: () => void
 }
 
-function EmployeeGrid({ employees, onEditEmployee }: EmployeeGridProps) {
+function EmployeeGrid({ employees, onEditEmployee, onResetFilters }: EmployeeGridProps) {
   if (employees.length === 0) {
     return (
-      <section className="px-6 py-4">
-        <p
-          role="status"
-          aria-live="polite"
-          className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500"
-        >
-          No employees match your current search and filters.
-        </p>
-      </section>
+      <EmptyState
+        icon={SearchX}
+        title="No employees match your filters"
+        description="Try a different search term or adjust your department and status filters."
+        actionLabel="Reset filters"
+        onAction={onResetFilters}
+      />
     )
   }
 
   return (
-    <section className="grid grid-cols-1 gap-4 px-6 py-4 sm:grid-cols-2 lg:grid-cols-3">
-      {employees.map((employee) => (
-        <EmployeeCard key={employee.id} employee={employee} onEdit={onEditEmployee} />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {employees.map((employee, index) => (
+        <div
+          key={employee.id}
+          className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
+          style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
+        >
+          <EmployeeCard employee={employee} onEdit={onEditEmployee} />
+        </div>
       ))}
-    </section>
+    </div>
   )
 }
 

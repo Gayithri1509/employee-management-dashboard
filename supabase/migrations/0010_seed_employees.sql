@@ -1,0 +1,152 @@
+-- ============================================================================
+-- 0010_seed_employees.sql
+-- Seeds exactly 120 fictional employees: the original 12 from
+-- src/data/employees.ts, preserved exactly, plus 108 additional synthetic
+-- records generated deterministically (fixed random seed) by
+-- generate_seed.py, documented in docs/database-architecture.md.
+--
+-- profile_id / created_by / updated_by are left null throughout: there is
+-- no authenticated actor during seeding.
+--
+-- These 120 rows are synthetic bootstrap data, not real HR actions, so the
+-- employees_audit_insert trigger (0007) is disabled for the duration of this
+-- migration only and re-enabled immediately afterward, in the same
+-- transaction. The UPDATE and DELETE audit triggers are never touched, are
+-- never disabled, and remain fully active throughout — including during
+-- this migration. Only the one-time bootstrap INSERT event is skipped;
+-- every future employee insert/update/delete through the running
+-- application is audited exactly as before, with no change to the trigger
+-- function or its logic.
+-- ============================================================================
+
+begin;
+
+alter table employees disable trigger employees_audit_insert;
+
+insert into employees (name, role, department_id, email, phone, location, status, joining_date, profile_id, created_by, updated_by)
+values
+  ('Ananya Rao', 'Frontend Engineer', (select id from departments where name = 'Engineering'), 'ananya.rao@examplecorp.com', '+1 555-0101', 'Bengaluru', 'Active', '2022-03-14', null, null, null),
+  ('Marcus Chen', 'Backend Engineer', (select id from departments where name = 'Engineering'), 'marcus.chen@examplecorp.com', '+1 555-0102', 'Seattle', 'Active', '2021-07-01', null, null, null),
+  ('Priya Nair', 'Engineering Manager', (select id from departments where name = 'Engineering'), 'priya.nair@examplecorp.com', '+1 555-0103', 'Bengaluru', 'Active', '2019-11-20', null, null, null),
+  ('Diego Fernandez', 'Product Designer', (select id from departments where name = 'Design'), 'diego.fernandez@examplecorp.com', '+1 555-0104', 'Austin', 'Active', '2023-01-09', null, null, null),
+  ('Sara Kim', 'UX Researcher', (select id from departments where name = 'Design'), 'sara.kim@examplecorp.com', '+1 555-0105', 'Remote', 'On Leave', '2022-08-15', null, null, null),
+  ('Michael Osei', 'Product Manager', (select id from departments where name = 'Product'), 'michael.osei@examplecorp.com', '+1 555-0106', 'New York', 'Active', '2020-05-04', null, null, null),
+  ('Elena Petrova', 'Marketing Specialist', (select id from departments where name = 'Marketing'), 'elena.petrova@examplecorp.com', '+1 555-0107', 'London', 'Active', '2023-06-19', null, null, null),
+  ('James Whitfield', 'Sales Executive', (select id from departments where name = 'Sales'), 'james.whitfield@examplecorp.com', '+1 555-0108', 'Chicago', 'Inactive', '2018-02-27', null, null, null),
+  ('Fatima Al-Sayed', 'HR Business Partner', (select id from departments where name = 'Human Resources'), 'fatima.alsayed@examplecorp.com', '+1 555-0109', 'Dubai', 'Active', '2021-09-30', null, null, null),
+  ('Tom Becker', 'Financial Analyst', (select id from departments where name = 'Finance'), 'tom.becker@examplecorp.com', '+1 555-0110', 'Berlin', 'Active', '2022-12-01', null, null, null),
+  ('Grace Lin', 'Customer Support Lead', (select id from departments where name = 'Customer Support'), 'grace.lin@examplecorp.com', '+1 555-0111', 'Toronto', 'Active', '2020-10-13', null, null, null),
+  ('Ryan O''Connor', 'Sales Associate', (select id from departments where name = 'Sales'), 'ryan.oconnor@examplecorp.com', '+1 555-0112', 'Chicago', 'Inactive', '2019-04-22', null, null, null),
+  ('Mira Andersen', 'Product Analyst', (select id from departments where name = 'Product'), 'mira.andersen@examplecorp.com', '+1 555-0113', 'Austin', 'Active', '2015-01-16', null, null, null),
+  ('Sana Weiss', 'HR Generalist', (select id from departments where name = 'Human Resources'), 'sana.weiss@examplecorp.com', '+1 555-0114', 'Dubai', 'Active', '2015-02-22', null, null, null),
+  ('Emeka Wangui', 'Accountant', (select id from departments where name = 'Finance'), 'emeka.wangui@examplecorp.com', '+1 555-0115', 'Dublin', 'Active', '2015-03-31', null, null, null),
+  ('Anders Kowal', 'Content Strategist', (select id from departments where name = 'Marketing'), 'anders.kowal@examplecorp.com', '+1 555-0116', 'Boston', 'Active', '2015-05-07', null, null, null),
+  ('Naomi Castillo', 'Recruiter', (select id from departments where name = 'Human Resources'), 'naomi.castillo@examplecorp.com', '+1 555-0117', 'Madrid', 'Active', '2015-06-13', null, null, null),
+  ('Bashir Mensah', 'Account Executive', (select id from departments where name = 'Sales'), 'bashir.mensah@examplecorp.com', '+1 555-0118', 'Remote', 'Active', '2015-07-20', null, null, null),
+  ('Isla Fischer', 'Senior Product Manager', (select id from departments where name = 'Product'), 'isla.fischer@examplecorp.com', '+1 555-0119', 'Berlin', 'Active', '2015-08-26', null, null, null),
+  ('Arjun Weiss', 'Marketing Manager', (select id from departments where name = 'Marketing'), 'arjun.weiss@examplecorp.com', '+1 555-0120', 'Amsterdam', 'Active', '2015-10-02', null, null, null),
+  ('Greta Adeyemi', 'HR Manager', (select id from departments where name = 'Human Resources'), 'greta.adeyemi@examplecorp.com', '+1 555-0121', 'Denver', 'Active', '2015-11-08', null, null, null),
+  ('Wei Diallo', 'People Ops Specialist', (select id from departments where name = 'Human Resources'), 'wei.diallo@examplecorp.com', '+1 555-0122', 'Warsaw', 'Active', '2015-12-15', null, null, null),
+  ('Elsa Reyes', 'UI Designer', (select id from departments where name = 'Design'), 'elsa.reyes@examplecorp.com', '+1 555-0123', 'New York', 'Active', '2016-01-21', null, null, null),
+  ('Yuki Rahman', 'Support Specialist', (select id from departments where name = 'Customer Support'), 'yuki.rahman@examplecorp.com', '+1 555-0124', 'Toronto', 'Active', '2016-02-27', null, null, null),
+  ('Priyanka Weiss', 'Software Engineer', (select id from departments where name = 'Engineering'), 'priyanka.weiss@examplecorp.com', '+1 555-0125', 'Tokyo', 'Active', '2016-04-04', null, null, null),
+  ('Zainab Kim', 'Product Designer', (select id from departments where name = 'Design'), 'zainab.kim@examplecorp.com', '+1 555-0126', 'Vancouver', 'Inactive', '2016-05-11', null, null, null),
+  ('Omar Rahman', 'Associate Product Manager', (select id from departments where name = 'Product'), 'omar.rahman@examplecorp.com', '+1 555-0127', 'Bengaluru', 'Active', '2016-06-17', null, null, null),
+  ('Chloe Kim', 'SEO Analyst', (select id from departments where name = 'Marketing'), 'chloe.kim@examplecorp.com', '+1 555-0128', 'London', 'Active', '2016-07-24', null, null, null),
+  ('Otto Adeyemi', 'Sales Manager', (select id from departments where name = 'Sales'), 'otto.adeyemi@examplecorp.com', '+1 555-0129', 'Singapore', 'Inactive', '2016-08-30', null, null, null),
+  ('Chidi Herrera', 'Product Ops Lead', (select id from departments where name = 'Product'), 'chidi.herrera@examplecorp.com', '+1 555-0130', 'Mumbai', 'Active', '2016-10-06', null, null, null),
+  ('Kenji Salas', 'Design Lead', (select id from departments where name = 'Design'), 'kenji.salas@examplecorp.com', '+1 555-0131', 'Paris', 'Inactive', '2016-11-12', null, null, null),
+  ('Bjorn Nystrom', 'Customer Success Manager', (select id from departments where name = 'Customer Support'), 'bjorn.nystrom@examplecorp.com', '+1 555-0132', 'Seattle', 'On Leave', '2016-12-19', null, null, null),
+  ('Zainab Adeyemi', 'Product Analyst', (select id from departments where name = 'Product'), 'zainab.adeyemi@examplecorp.com', '+1 555-0133', 'Chicago', 'Active', '2017-01-25', null, null, null),
+  ('Kenji Mattson', 'Business Development Rep', (select id from departments where name = 'Sales'), 'kenji.mattson@examplecorp.com', '+1 555-0134', 'Sydney', 'Active', '2017-03-03', null, null, null),
+  ('Alessio Farah', 'Senior Software Engineer', (select id from departments where name = 'Engineering'), 'alessio.farah@examplecorp.com', '+1 555-0135', 'San Francisco', 'Active', '2017-04-09', null, null, null),
+  ('Mira Diallo', 'Finance Manager', (select id from departments where name = 'Finance'), 'mira.diallo@examplecorp.com', '+1 555-0136', 'Cape Town', 'Inactive', '2017-05-16', null, null, null),
+  ('Vera Nwosu', 'Sales Ops Analyst', (select id from departments where name = 'Sales'), 'vera.nwosu@examplecorp.com', '+1 555-0137', 'Austin', 'Active', '2017-06-22', null, null, null),
+  ('Ivo Bergstrom', 'Account Executive', (select id from departments where name = 'Sales'), 'ivo.bergstrom@examplecorp.com', '+1 555-0138', 'Dubai', 'Active', '2017-07-29', null, null, null),
+  ('Pavel Fischer', 'Technical Support Engineer', (select id from departments where name = 'Customer Support'), 'pavel.fischer@examplecorp.com', '+1 555-0139', 'Dublin', 'Active', '2017-09-04', null, null, null),
+  ('Kwame Hussain', 'Brand Manager', (select id from departments where name = 'Marketing'), 'kwame.hussain@examplecorp.com', '+1 555-0140', 'Boston', 'On Leave', '2017-10-11', null, null, null),
+  ('Oscar Nystrom', 'Visual Designer', (select id from departments where name = 'Design'), 'oscar.nystrom@examplecorp.com', '+1 555-0141', 'Madrid', 'Active', '2017-11-17', null, null, null),
+  ('Rafael Mensah', 'Support Ops Analyst', (select id from departments where name = 'Customer Support'), 'rafael.mensah@examplecorp.com', '+1 555-0142', 'Remote', 'Active', '2017-12-24', null, null, null),
+  ('Omar Kowalski', 'HR Generalist', (select id from departments where name = 'Human Resources'), 'omar.kowalski@examplecorp.com', '+1 555-0143', 'Berlin', 'Active', '2018-01-30', null, null, null),
+  ('Theo Rahman', 'Payroll Specialist', (select id from departments where name = 'Finance'), 'theo.rahman@examplecorp.com', '+1 555-0144', 'Amsterdam', 'Active', '2018-03-08', null, null, null),
+  ('Liam Mattson', 'Senior Product Manager', (select id from departments where name = 'Product'), 'liam.mattson@examplecorp.com', '+1 555-0145', 'Denver', 'Active', '2018-04-14', null, null, null),
+  ('Mei Nwosu', 'Associate Product Manager', (select id from departments where name = 'Product'), 'mei.nwosu@examplecorp.com', '+1 555-0146', 'Warsaw', 'On Leave', '2018-05-21', null, null, null),
+  ('Anya Larsen', 'Recruiter', (select id from departments where name = 'Human Resources'), 'anya.larsen@examplecorp.com', '+1 555-0147', 'New York', 'Active', '2018-06-27', null, null, null),
+  ('Tariq Barros', 'Revenue Analyst', (select id from departments where name = 'Finance'), 'tariq.barros@examplecorp.com', '+1 555-0148', 'Toronto', 'Active', '2018-08-03', null, null, null),
+  ('Emeka Diallo', 'Content Strategist', (select id from departments where name = 'Marketing'), 'emeka.diallo@examplecorp.com', '+1 555-0149', 'Tokyo', 'Active', '2018-09-09', null, null, null),
+  ('Rafael Nystrom', 'Product Ops Lead', (select id from departments where name = 'Product'), 'rafael.nystrom@examplecorp.com', '+1 555-0150', 'Vancouver', 'Active', '2018-10-16', null, null, null),
+  ('Sana Suzuki', 'Product Analyst', (select id from departments where name = 'Product'), 'sana.suzuki@examplecorp.com', '+1 555-0151', 'Bengaluru', 'Active', '2018-11-22', null, null, null),
+  ('Ivo Lindqvist', 'Marketing Manager', (select id from departments where name = 'Marketing'), 'ivo.lindqvist@examplecorp.com', '+1 555-0152', 'London', 'Active', '2018-12-29', null, null, null),
+  ('Mei Amara', 'Support Specialist', (select id from departments where name = 'Customer Support'), 'mei.amara@examplecorp.com', '+1 555-0153', 'Singapore', 'On Leave', '2019-02-04', null, null, null),
+  ('Leila Fischer', 'HR Manager', (select id from departments where name = 'Human Resources'), 'leila.fischer@examplecorp.com', '+1 555-0154', 'Mumbai', 'Active', '2019-03-13', null, null, null),
+  ('Kwame Moreno', 'UI Designer', (select id from departments where name = 'Design'), 'kwame.moreno@examplecorp.com', '+1 555-0155', 'Paris', 'Active', '2019-04-19', null, null, null),
+  ('Amos Weiss', 'Sales Manager', (select id from departments where name = 'Sales'), 'amos.weiss@examplecorp.com', '+1 555-0156', 'Seattle', 'Inactive', '2019-05-26', null, null, null),
+  ('Dmitri Solberg', 'Senior Product Manager', (select id from departments where name = 'Product'), 'dmitri.solberg@examplecorp.com', '+1 555-0157', 'Chicago', 'Active', '2019-07-02', null, null, null),
+  ('Farah Herrera', 'SEO Analyst', (select id from departments where name = 'Marketing'), 'farah.herrera@examplecorp.com', '+1 555-0158', 'Sydney', 'Active', '2019-08-08', null, null, null),
+  ('Priyanka Osman', 'Customer Success Manager', (select id from departments where name = 'Customer Support'), 'priyanka.osman@examplecorp.com', '+1 555-0159', 'San Francisco', 'Inactive', '2019-09-14', null, null, null),
+  ('Lucas Ekberg', 'Business Development Rep', (select id from departments where name = 'Sales'), 'lucas.ekberg@examplecorp.com', '+1 555-0160', 'Cape Town', 'Active', '2019-10-21', null, null, null),
+  ('Mei Haddad', 'QA Engineer', (select id from departments where name = 'Engineering'), 'mei.haddad@examplecorp.com', '+1 555-0161', 'Austin', 'Active', '2019-11-27', null, null, null),
+  ('Elif Lindqvist', 'DevOps Engineer', (select id from departments where name = 'Engineering'), 'elif.lindqvist@examplecorp.com', '+1 555-0162', 'Dubai', 'Active', '2020-01-03', null, null, null),
+  ('Farah Larsen', 'Associate Product Manager', (select id from departments where name = 'Product'), 'farah.larsen@examplecorp.com', '+1 555-0163', 'Dublin', 'On Leave', '2020-02-09', null, null, null),
+  ('Wei Andersen', 'Accountant', (select id from departments where name = 'Finance'), 'wei.andersen@examplecorp.com', '+1 555-0164', 'Boston', 'Active', '2020-03-17', null, null, null),
+  ('Kofi Nystrom', 'Technical Support Engineer', (select id from departments where name = 'Customer Support'), 'kofi.nystrom@examplecorp.com', '+1 555-0165', 'Madrid', 'Active', '2020-04-23', null, null, null),
+  ('Alessio Diallo', 'People Ops Specialist', (select id from departments where name = 'Human Resources'), 'alessio.diallo@examplecorp.com', '+1 555-0166', 'Remote', 'Active', '2020-05-30', null, null, null),
+  ('Naomi Weiss', 'Support Ops Analyst', (select id from departments where name = 'Customer Support'), 'naomi.weiss@examplecorp.com', '+1 555-0167', 'Berlin', 'Active', '2020-07-06', null, null, null),
+  ('Layla Andersen', 'Brand Manager', (select id from departments where name = 'Marketing'), 'layla.andersen@examplecorp.com', '+1 555-0168', 'Amsterdam', 'Active', '2020-08-12', null, null, null),
+  ('Mateo Cardoso', 'Product Ops Lead', (select id from departments where name = 'Product'), 'mateo.cardoso@examplecorp.com', '+1 555-0169', 'Denver', 'Active', '2020-09-18', null, null, null),
+  ('Chloe Karim', 'Sales Ops Analyst', (select id from departments where name = 'Sales'), 'chloe.karim@examplecorp.com', '+1 555-0170', 'Warsaw', 'Inactive', '2020-10-25', null, null, null),
+  ('Chloe Reyes', 'Staff Engineer', (select id from departments where name = 'Engineering'), 'chloe.reyes@examplecorp.com', '+1 555-0171', 'New York', 'Active', '2020-12-01', null, null, null),
+  ('Nadia Berg', 'Content Strategist', (select id from departments where name = 'Marketing'), 'nadia.berg@examplecorp.com', '+1 555-0172', 'Toronto', 'Active', '2021-01-07', null, null, null),
+  ('Chloe Iyer', 'Finance Manager', (select id from departments where name = 'Finance'), 'chloe.iyer@examplecorp.com', '+1 555-0173', 'Tokyo', 'Active', '2021-02-13', null, null, null),
+  ('Bashir Volkov', 'Mobile Engineer', (select id from departments where name = 'Engineering'), 'bashir.volkov@examplecorp.com', '+1 555-0174', 'Vancouver', 'On Leave', '2021-03-22', null, null, null),
+  ('Mei Njoroge', 'Product Designer', (select id from departments where name = 'Design'), 'mei.njoroge@examplecorp.com', '+1 555-0175', 'Bengaluru', 'Active', '2021-04-28', null, null, null),
+  ('Bashir Kowalski', 'Payroll Specialist', (select id from departments where name = 'Finance'), 'bashir.kowalski@examplecorp.com', '+1 555-0176', 'London', 'Active', '2021-06-04', null, null, null),
+  ('Mateo Nystrom', 'HR Generalist', (select id from departments where name = 'Human Resources'), 'mateo.nystrom@examplecorp.com', '+1 555-0177', 'Singapore', 'Active', '2021-07-11', null, null, null),
+  ('Sakura Cardoso', 'Support Specialist', (select id from departments where name = 'Customer Support'), 'sakura.cardoso@examplecorp.com', '+1 555-0178', 'Mumbai', 'Active', '2021-08-17', null, null, null),
+  ('Freya Castillo', 'Marketing Manager', (select id from departments where name = 'Marketing'), 'freya.castillo@examplecorp.com', '+1 555-0179', 'Paris', 'Active', '2021-09-23', null, null, null),
+  ('Ines Ochoa', 'Account Executive', (select id from departments where name = 'Sales'), 'ines.ochoa@examplecorp.com', '+1 555-0180', 'Seattle', 'Active', '2021-10-30', null, null, null),
+  ('Dmitri Yamamoto', 'Customer Success Manager', (select id from departments where name = 'Customer Support'), 'dmitri.yamamoto@examplecorp.com', '+1 555-0181', 'Chicago', 'Active', '2021-12-06', null, null, null),
+  ('Nasrin Silva', 'Revenue Analyst', (select id from departments where name = 'Finance'), 'nasrin.silva@examplecorp.com', '+1 555-0182', 'Sydney', 'Active', '2022-01-12', null, null, null),
+  ('Ingrid Abara', 'Software Engineer', (select id from departments where name = 'Engineering'), 'ingrid.abara@examplecorp.com', '+1 555-0183', 'San Francisco', 'Active', '2022-02-18', null, null, null),
+  ('Kiran Diallo', 'Accountant', (select id from departments where name = 'Finance'), 'kiran.diallo@examplecorp.com', '+1 555-0184', 'Cape Town', 'Active', '2022-03-27', null, null, null),
+  ('Freya Nasser', 'Senior Software Engineer', (select id from departments where name = 'Engineering'), 'freya.nasser@examplecorp.com', '+1 555-0185', 'Austin', 'Active', '2022-05-03', null, null, null),
+  ('Bashir Reyes', 'Recruiter', (select id from departments where name = 'Human Resources'), 'bashir.reyes@examplecorp.com', '+1 555-0186', 'Dubai', 'Active', '2022-06-09', null, null, null),
+  ('Amos Lindqvist', 'HR Manager', (select id from departments where name = 'Human Resources'), 'amos.lindqvist@examplecorp.com', '+1 555-0187', 'Dublin', 'Active', '2022-07-16', null, null, null),
+  ('Hiro Larsen', 'Sales Manager', (select id from departments where name = 'Sales'), 'hiro.larsen@examplecorp.com', '+1 555-0188', 'Boston', 'On Leave', '2022-08-22', null, null, null),
+  ('Liam Nasser', 'SEO Analyst', (select id from departments where name = 'Marketing'), 'liam.nasser@examplecorp.com', '+1 555-0189', 'Madrid', 'Active', '2022-09-28', null, null, null),
+  ('Zainab Barros', 'QA Engineer', (select id from departments where name = 'Engineering'), 'zainab.barros@examplecorp.com', '+1 555-0190', 'Remote', 'Active', '2022-11-04', null, null, null),
+  ('Amos Karim', 'Technical Support Engineer', (select id from departments where name = 'Customer Support'), 'amos.karim@examplecorp.com', '+1 555-0191', 'Berlin', 'Active', '2022-12-11', null, null, null),
+  ('Nasrin Okafor', 'Product Analyst', (select id from departments where name = 'Product'), 'nasrin.okafor@examplecorp.com', '+1 555-0192', 'Amsterdam', 'Active', '2023-01-17', null, null, null),
+  ('Wei Barros', 'Design Lead', (select id from departments where name = 'Design'), 'wei.barros@examplecorp.com', '+1 555-0193', 'Denver', 'Active', '2023-02-23', null, null, null),
+  ('Elsa Farah', 'Brand Manager', (select id from departments where name = 'Marketing'), 'elsa.farah@examplecorp.com', '+1 555-0194', 'Warsaw', 'Active', '2023-04-01', null, null, null),
+  ('Sven Kim', 'Visual Designer', (select id from departments where name = 'Design'), 'sven.kim@examplecorp.com', '+1 555-0195', 'New York', 'On Leave', '2023-05-08', null, null, null),
+  ('Zainab Nwosu', 'Senior Product Manager', (select id from departments where name = 'Product'), 'zainab.nwosu@examplecorp.com', '+1 555-0196', 'Toronto', 'Active', '2023-06-14', null, null, null),
+  ('Rosa Sato', 'Support Ops Analyst', (select id from departments where name = 'Customer Support'), 'rosa.sato@examplecorp.com', '+1 555-0197', 'Tokyo', 'Active', '2023-07-21', null, null, null),
+  ('Vera Barros', 'People Ops Specialist', (select id from departments where name = 'Human Resources'), 'vera.barros@examplecorp.com', '+1 555-0198', 'Vancouver', 'Active', '2023-08-27', null, null, null),
+  ('Elsa Nystrom', 'Content Strategist', (select id from departments where name = 'Marketing'), 'elsa.nystrom@examplecorp.com', '+1 555-0199', 'Bengaluru', 'Active', '2023-10-03', null, null, null),
+  ('Sofia Lindberg', 'Business Development Rep', (select id from departments where name = 'Sales'), 'sofia.lindberg@examplecorp.com', '+1 555-0200', 'London', 'Active', '2023-11-09', null, null, null),
+  ('Ingrid Silva', 'UI Designer', (select id from departments where name = 'Design'), 'ingrid.silva@examplecorp.com', '+1 555-0201', 'Singapore', 'Active', '2023-12-16', null, null, null),
+  ('Wei Zhang', 'Finance Manager', (select id from departments where name = 'Finance'), 'wei.zhang@examplecorp.com', '+1 555-0202', 'Mumbai', 'On Leave', '2024-01-22', null, null, null),
+  ('Amos Sato', 'Payroll Specialist', (select id from departments where name = 'Finance'), 'amos.sato@examplecorp.com', '+1 555-0203', 'Paris', 'On Leave', '2024-02-28', null, null, null),
+  ('Layla Hussain', 'Product Designer', (select id from departments where name = 'Design'), 'layla.hussain@examplecorp.com', '+1 555-0204', 'Seattle', 'Inactive', '2024-04-05', null, null, null),
+  ('Freya Suzuki', 'Revenue Analyst', (select id from departments where name = 'Finance'), 'freya.suzuki@examplecorp.com', '+1 555-0205', 'Chicago', 'On Leave', '2024-05-12', null, null, null),
+  ('Rafael Kim', 'DevOps Engineer', (select id from departments where name = 'Engineering'), 'rafael.kim@examplecorp.com', '+1 555-0206', 'Sydney', 'Active', '2024-06-18', null, null, null),
+  ('Sakura Salas', 'Design Lead', (select id from departments where name = 'Design'), 'sakura.salas@examplecorp.com', '+1 555-0207', 'San Francisco', 'Active', '2024-07-25', null, null, null),
+  ('Noah Nasser', 'Visual Designer', (select id from departments where name = 'Design'), 'noah.nasser@examplecorp.com', '+1 555-0208', 'Cape Town', 'Inactive', '2024-08-31', null, null, null),
+  ('Anya Kim', 'Support Specialist', (select id from departments where name = 'Customer Support'), 'anya.kim@examplecorp.com', '+1 555-0209', 'Austin', 'Active', '2024-10-07', null, null, null),
+  ('Zainab Silva', 'Accountant', (select id from departments where name = 'Finance'), 'zainab.silva@examplecorp.com', '+1 555-0210', 'Dubai', 'Active', '2024-11-13', null, null, null),
+  ('Chloe Ekberg', 'Customer Success Manager', (select id from departments where name = 'Customer Support'), 'chloe.ekberg@examplecorp.com', '+1 555-0211', 'Dublin', 'Inactive', '2024-12-20', null, null, null),
+  ('Kofi Karim', 'Finance Manager', (select id from departments where name = 'Finance'), 'kofi.karim@examplecorp.com', '+1 555-0212', 'Boston', 'Active', '2025-01-26', null, null, null),
+  ('Naomi Bergstrom', 'Marketing Manager', (select id from departments where name = 'Marketing'), 'naomi.bergstrom@examplecorp.com', '+1 555-0213', 'Madrid', 'Active', '2025-03-04', null, null, null),
+  ('Omar Nwosu', 'Staff Engineer', (select id from departments where name = 'Engineering'), 'omar.nwosu@examplecorp.com', '+1 555-0214', 'Remote', 'Active', '2025-04-10', null, null, null),
+  ('Hiro Barros', 'HR Generalist', (select id from departments where name = 'Human Resources'), 'hiro.barros@examplecorp.com', '+1 555-0215', 'Berlin', 'Active', '2025-05-17', null, null, null),
+  ('Farah Karim', 'Recruiter', (select id from departments where name = 'Human Resources'), 'farah.karim@examplecorp.com', '+1 555-0216', 'Amsterdam', 'Active', '2025-06-23', null, null, null),
+  ('Kwame Petrov', 'Sales Ops Analyst', (select id from departments where name = 'Sales'), 'kwame.petrov@examplecorp.com', '+1 555-0217', 'Denver', 'Active', '2025-07-30', null, null, null),
+  ('Sana Njoroge', 'UI Designer', (select id from departments where name = 'Design'), 'sana.njoroge@examplecorp.com', '+1 555-0218', 'Warsaw', 'Active', '2025-09-05', null, null, null),
+  ('Amos Andersen', 'Account Executive', (select id from departments where name = 'Sales'), 'amos.andersen@examplecorp.com', '+1 555-0219', 'New York', 'Active', '2025-10-12', null, null, null),
+  ('Sofia Solberg', 'Mobile Engineer', (select id from departments where name = 'Engineering'), 'sofia.solberg@examplecorp.com', '+1 555-0220', 'Toronto', 'Active', '2025-11-18', null, null, null)
+on conflict (email) do nothing;
+
+alter table employees enable trigger employees_audit_insert;
+
+commit;

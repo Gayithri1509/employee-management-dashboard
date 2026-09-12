@@ -19,7 +19,7 @@ function ControlsBar({
   onStatusChange,
 }: ControlsBarProps) {
   return (
-    <div className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <SearchBar value={searchTerm} onChange={onSearchChange} />
       <FilterControls
         department={department}

@@ -15,7 +15,7 @@ function FilterControls({
   onStatusChange,
 }: FilterControlsProps) {
   return (
-    <div className="flex gap-3">
+    <div className="flex flex-col gap-3 sm:flex-row">
       <DepartmentFilter value={department} onChange={onDepartmentChange} />
       <StatusFilter value={status} onChange={onStatusChange} />
     </div>
