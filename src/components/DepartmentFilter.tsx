@@ -1,11 +1,10 @@
-import { DEPARTMENTS } from '../types/employee'
-
 interface DepartmentFilterProps {
   value: string
   onChange: (value: string) => void
+  departments: string[]
 }
 
-function DepartmentFilter({ value, onChange }: DepartmentFilterProps) {
+function DepartmentFilter({ value, onChange, departments }: DepartmentFilterProps) {
   return (
     <div>
       <label htmlFor="department-filter" className="sr-only">
@@ -19,7 +18,7 @@ function DepartmentFilter({ value, onChange }: DepartmentFilterProps) {
         className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 transition-colors focus:border-indigo-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
       >
         <option value="all">All Departments</option>
-        {DEPARTMENTS.map((department) => (
+        {departments.map((department) => (
           <option key={department} value={department}>
             {department}
           </option>

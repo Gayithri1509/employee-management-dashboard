@@ -8,6 +8,7 @@ interface ControlsBarProps {
   status: string
   onDepartmentChange: (value: string) => void
   onStatusChange: (value: string) => void
+  departments: string[]
 }
 
 function ControlsBar({
@@ -17,6 +18,7 @@ function ControlsBar({
   status,
   onDepartmentChange,
   onStatusChange,
+  departments,
 }: ControlsBarProps) {
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -26,6 +28,7 @@ function ControlsBar({
         status={status}
         onDepartmentChange={onDepartmentChange}
         onStatusChange={onStatusChange}
+        departments={departments}
       />
     </div>
   )

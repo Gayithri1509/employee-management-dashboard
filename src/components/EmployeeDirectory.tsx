@@ -2,6 +2,7 @@ import { RotateCcw, Users } from 'lucide-react'
 import type { Employee } from '../types/employee'
 import ControlsBar from './ControlsBar'
 import EmployeeGrid from './EmployeeGrid'
+import EmptyState from './EmptyState'
 
 interface EmployeeDirectoryProps {
   employees: Employee[]
@@ -9,6 +10,7 @@ interface EmployeeDirectoryProps {
   searchTerm: string
   department: string
   status: string
+  departments: string[]
   onSearchChange: (value: string) => void
   onDepartmentChange: (value: string) => void
   onStatusChange: (value: string) => void
@@ -23,6 +25,7 @@ function EmployeeDirectory({
   searchTerm,
   department,
   status,
+  departments,
   onSearchChange,
   onDepartmentChange,
   onStatusChange,
@@ -57,20 +60,33 @@ function EmployeeDirectory({
         )}
       </div>
 
-      <div className="mt-4 border-t border-slate-100 pt-4">
-        <ControlsBar
-          searchTerm={searchTerm}
-          onSearchChange={onSearchChange}
-          department={department}
-          status={status}
-          onDepartmentChange={onDepartmentChange}
-          onStatusChange={onStatusChange}
-        />
-      </div>
+      {totalCount === 0 ? (
+        <div className="mt-5">
+          <EmptyState
+            icon={Users}
+            title="No employees yet"
+            description="Employees added to the organization will appear here."
+          />
+        </div>
+      ) : (
+        <>
+          <div className="mt-4 border-t border-slate-100 pt-4">
+            <ControlsBar
+              searchTerm={searchTerm}
+              onSearchChange={onSearchChange}
+              department={department}
+              status={status}
+              onDepartmentChange={onDepartmentChange}
+              onStatusChange={onStatusChange}
+              departments={departments}
+            />
+          </div>
 
-      <div className="mt-5">
-        <EmployeeGrid employees={employees} onEditEmployee={onEditEmployee} onResetFilters={onResetFilters} />
-      </div>
+          <div className="mt-5">
+            <EmployeeGrid employees={employees} onEditEmployee={onEditEmployee} onResetFilters={onResetFilters} />
+          </div>
+        </>
+      )}
     </div>
   )
 }

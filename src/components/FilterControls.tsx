@@ -6,6 +6,7 @@ interface FilterControlsProps {
   status: string
   onDepartmentChange: (value: string) => void
   onStatusChange: (value: string) => void
+  departments: string[]
 }
 
 function FilterControls({
@@ -13,10 +14,11 @@ function FilterControls({
   status,
   onDepartmentChange,
   onStatusChange,
+  departments,
 }: FilterControlsProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
-      <DepartmentFilter value={department} onChange={onDepartmentChange} />
+      <DepartmentFilter value={department} onChange={onDepartmentChange} departments={departments} />
       <StatusFilter value={status} onChange={onStatusChange} />
     </div>
   )
