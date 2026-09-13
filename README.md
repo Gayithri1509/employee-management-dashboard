@@ -37,12 +37,17 @@ boundary.
    `supabase/migrations/0012_rls_security_foundation.sql` /
    `0013_employee_mutation_rpcs.sql` for the security model.
 4. Create at least one real account by running the app and using the
-   "Sign up" link on the sign-in page. New accounts start with the
+   "Sign up" link on the sign-in page. New accounts always start with the
    `employee` role (hard-coded server-side, see
-   `supabase/migrations/0011_profiles_signup_trigger.sql`); promoting an
-   account to `admin`/`hr_manager`/`hr_staff` currently requires updating
-   its `profiles.role` value directly in the Supabase dashboard (there is
-   no in-app role-management UI yet).
+   `supabase/migrations/0011_profiles_signup_trigger.sql`, and never
+   settable by the client). To bootstrap your first Admin, promote that one
+   account by updating its `profiles.role` value directly in the Supabase
+   dashboard (a one-time step -- `set_user_role` can't be used yet because
+   no Admin exists to call it). After that, use the in-app **User & Access**
+   page (Admin only) for every further role change -- it's the audited,
+   secure path (`supabase/migrations/0016_admin_user_management_rpcs.sql`),
+   and going back to the dashboard for later role changes should not be
+   necessary.
 
 ## Running
 
@@ -70,12 +75,13 @@ security boundary.
 - This is a static single-page app (Vite build output in `dist/`) that
   talks directly to Supabase -- any static host works (Netlify, Vercel,
   Cloudflare Pages, S3+CDN, etc.). No server-side runtime is required.
-- **Configure SPA fallback routing on your host.** The app uses
+- **SPA fallback routing is already configured.** The app uses
   `react-router-dom`'s `BrowserRouter`, so every route (e.g. `/employees`,
   `/settings`) must be served `index.html` on a direct request/refresh,
-  not a 404. Most static hosts have a one-line setting for this (e.g. a
-  `_redirects` file with `/* /index.html 200` on Netlify, or Vercel's
-  default SPA rewrite).
+  not a 404. `public/_redirects` (Netlify, Cloudflare Pages) and
+  `vercel.json` (Vercel) both ship in this repo for that. Deploying
+  somewhere else (e.g. S3+CloudFront, GitHub Pages) still needs an
+  equivalent rewrite rule configured on that host.
 - Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` as
   environment variables in your host's build settings -- never commit a
   real `.env` file (already covered by `.gitignore`).
