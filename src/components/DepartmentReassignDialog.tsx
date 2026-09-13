@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
 interface DepartmentOption {
@@ -30,6 +30,22 @@ function DepartmentReassignDialog({
   onCancel,
 }: DepartmentReassignDialogProps) {
   const [targetId, setTargetId] = useState(otherDepartments[0]?.id ?? '')
+  const selectRef = useRef<HTMLSelectElement>(null)
+  const cancelButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    ;(selectRef.current ?? cancelButtonRef.current)?.focus()
+  }, [])
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !busy) {
+        onCancel()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [busy, onCancel])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-[fadeIn_0.15s_ease-out] motion-reduce:animate-none">
@@ -37,6 +53,7 @@ function DepartmentReassignDialog({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="reassign-heading"
+        aria-describedby="reassign-description"
         className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl animate-[modalIn_0.2s_ease-out] motion-reduce:animate-none"
       >
         <div className="flex items-start gap-3">
@@ -47,7 +64,7 @@ function DepartmentReassignDialog({
             <h2 id="reassign-heading" className="text-sm font-semibold text-slate-800">
               {departmentName} still has {employeeCount} {employeeCount === 1 ? 'employee' : 'employees'}
             </h2>
-            <p className="mt-1 text-xs text-slate-500">
+            <p id="reassign-description" className="mt-1 text-xs text-slate-500">
               Move everyone in {departmentName} to another department before it can be deleted.
             </p>
           </div>
@@ -64,6 +81,7 @@ function DepartmentReassignDialog({
             </label>
             <select
               id="reassign-target"
+              ref={selectRef}
               value={targetId}
               onChange={(e) => setTargetId(e.target.value)}
               disabled={busy}
@@ -81,6 +99,7 @@ function DepartmentReassignDialog({
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
+            ref={cancelButtonRef}
             onClick={onCancel}
             disabled={busy}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"

@@ -10,6 +10,7 @@
 
 import { supabase } from '../../lib/supabase'
 import type { DepartmentRow } from '../../types/database'
+import { humanizeError } from '../../utils/errors'
 
 export interface DepartmentsResult {
   data: DepartmentRow[] | null
@@ -29,7 +30,7 @@ export async function fetchDepartments(): Promise<DepartmentsResult> {
   const { data, error } = await supabase.from('departments').select('*').order('name')
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not load departments. Please try again.') }
   }
 
   return { data, error: null }
@@ -54,7 +55,7 @@ export async function createDepartment(name: string): Promise<DepartmentResult> 
     if (error.code === '23505') {
       return { data: null, error: DUPLICATE_NAME_ERROR }
     }
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not create this department. Please try again.') }
   }
 
   return { data, error: null }
@@ -68,7 +69,7 @@ export async function updateDepartment(id: string, name: string): Promise<Depart
     if (error.code === '23505') {
       return { data: null, error: DUPLICATE_NAME_ERROR }
     }
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not rename this department. Please try again.') }
   }
 
   return { data, error: null }
@@ -90,7 +91,7 @@ export async function deleteDepartment(id: string): Promise<{ error: string | nu
     if (error.code === '23503') {
       return { error: STILL_HAS_EMPLOYEES_ERROR }
     }
-    return { error: error.message }
+    return { error: humanizeError(error.message, 'Could not delete this department. Please try again.') }
   }
 
   return { error: null }
@@ -104,7 +105,7 @@ export async function countEmployeesInDepartment(departmentId: string): Promise<
     .eq('department_id', departmentId)
 
   if (error) {
-    return { count: null, error: error.message }
+    return { count: null, error: humanizeError(error.message, 'Could not check employees in this department.') }
   }
 
   return { count: count ?? 0, error: null }
@@ -125,7 +126,7 @@ export async function reassignDepartmentEmployees(
   })
 
   if (error) {
-    return { count: null, error: error.message }
+    return { count: null, error: humanizeError(error.message, 'Could not move employees to the new department. Please try again.') }
   }
 
   return { count: data, error: null }

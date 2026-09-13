@@ -22,6 +22,8 @@ export interface Capabilities {
   canViewInsights: boolean
   canViewOwnProfile: boolean
   canEditOwnProfile: boolean
+  /** Every real account gets Settings (it's about their own account, not org data) -- false only for the no-session/no-profile default. */
+  canViewSettings: boolean
 }
 
 const NONE: Capabilities = {
@@ -37,6 +39,7 @@ const NONE: Capabilities = {
   canViewInsights: false,
   canViewOwnProfile: false,
   canEditOwnProfile: false,
+  canViewSettings: false,
 }
 
 const ADMIN: Capabilities = {
@@ -51,6 +54,7 @@ const ADMIN: Capabilities = {
   canManageRoles: true,
   canViewActivity: true,
   canViewInsights: true,
+  canViewSettings: true,
 }
 
 const HR_MANAGER: Capabilities = {
@@ -70,12 +74,14 @@ const HR_STAFF: Capabilities = {
   // server-side regardless of what the UI allows.
   canViewActivity: true,
   canViewInsights: true,
+  canViewSettings: true,
 }
 
 const EMPLOYEE: Capabilities = {
   ...NONE,
   canViewOwnProfile: true,
   canEditOwnProfile: true,
+  canViewSettings: true,
 }
 
 /**

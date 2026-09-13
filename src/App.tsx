@@ -11,6 +11,7 @@ import DepartmentsPage from './pages/DepartmentsPage'
 import ActivityPage from './pages/ActivityPage'
 import InsightsPage from './pages/InsightsPage'
 import MyProfilePage from './pages/MyProfilePage'
+import SettingsPage from './pages/SettingsPage'
 import AccessDenied from './pages/AccessDenied'
 
 /** "/" has no fixed destination -- it resolves to whatever the viewer's own capabilities allow. */
@@ -30,7 +31,7 @@ function AuthGate() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50" role="status" aria-live="polite">
         <p className="text-sm text-slate-500">Loading...</p>
       </div>
     )
@@ -89,6 +90,14 @@ function AuthGate() {
           element={
             <RequireCapability capability="canViewOwnProfile">
               <MyProfilePage />
+            </RequireCapability>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <RequireCapability capability="canViewSettings">
+              <SettingsPage />
             </RequireCapability>
           }
         />

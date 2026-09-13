@@ -200,6 +200,12 @@ export interface Database {
         }
         Returns: number
       }
+      update_my_profile: {
+        Args: {
+          p_full_name: string | null
+        }
+        Returns: Database['public']['Tables']['profiles']['Row']
+      }
     }
     Enums: {
       user_role: UserRole

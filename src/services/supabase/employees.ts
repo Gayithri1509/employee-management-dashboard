@@ -19,6 +19,7 @@ import { supabase } from '../../lib/supabase'
 import type { EmployeeRow } from '../../types/database'
 import { EMPLOYEE_STATUSES, type Employee, type EmployeeStatus } from '../../types/employee'
 import { buildDepartmentNameById, fetchDepartments } from './departments'
+import { humanizeError } from '../../utils/errors'
 
 export interface EmployeesResult {
   data: Employee[] | null
@@ -70,7 +71,7 @@ export async function fetchEmployeeRows(): Promise<{ data: EmployeeRow[] | null;
   const { data, error } = await supabase.from('employees').select('*').order('name')
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not load employees. Please try again.') }
   }
 
   return { data, error: null }
@@ -166,7 +167,7 @@ export async function createEmployee(
   })
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not add this employee. Please try again.') }
   }
 
   return mapMutatedRow(data, departmentNameById)
@@ -194,7 +195,7 @@ export async function updateEmployee(
   })
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not save changes to this employee. Please try again.') }
   }
 
   return mapMutatedRow(data, departmentNameById)
@@ -212,7 +213,7 @@ export async function setEmployeeStatus(
   })
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not update this employee\'s status. Please try again.') }
   }
 
   return mapMutatedRow(data, departmentNameById)
@@ -223,7 +224,7 @@ export async function deleteEmployee(employeeId: string): Promise<{ error: strin
   const { error } = await supabase.rpc('delete_employee', { p_id: employeeId })
 
   if (error) {
-    return { error: error.message }
+    return { error: humanizeError(error.message, 'Could not delete this employee. Please try again.') }
   }
 
   return { error: null }
@@ -250,7 +251,7 @@ export async function updateEmployeeSelf(
   })
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not save your changes. Please try again.') }
   }
 
   return mapMutatedRow(data, departmentNameById)

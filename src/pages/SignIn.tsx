@@ -10,6 +10,7 @@ type Mode = 'sign-in' | 'sign-up'
 function SignIn() {
   const { signIn, signUp } = useAuth()
   const [mode, setMode] = useState<Mode>('sign-in')
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -22,7 +23,7 @@ function SignIn() {
     setSignUpSuccessMessage(null)
     setSubmitting(true)
 
-    const result = mode === 'sign-in' ? await signIn(email, password) : await signUp(email, password)
+    const result = mode === 'sign-in' ? await signIn(email, password) : await signUp(email, password, fullName)
 
     setSubmitting(false)
 
@@ -42,6 +43,7 @@ function SignIn() {
 
   function toggleMode() {
     setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'))
+    setFullName('')
     setError(null)
     setSignUpSuccessMessage(null)
   }
@@ -59,6 +61,24 @@ function SignIn() {
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+          {mode === 'sign-up' && (
+            <div>
+              <label htmlFor="auth-full-name" className="block text-sm font-medium text-slate-700">
+                Full name
+              </label>
+              <input
+                id="auth-full-name"
+                type="text"
+                autoComplete="name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Jane Doe"
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+              <p className="mt-1 text-xs text-slate-400">Shown throughout the app instead of your email.</p>
+            </div>
+          )}
+
           <div>
             <label htmlFor="auth-email" className="block text-sm font-medium text-slate-700">
               Email

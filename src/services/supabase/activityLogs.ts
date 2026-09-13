@@ -4,6 +4,7 @@
 import { supabase } from '../../lib/supabase'
 import type { ActivityLogRow } from '../../types/database'
 import type { ActivityEntry } from '../../types/activity'
+import { humanizeError } from '../../utils/errors'
 
 export interface ActivityLogsResult {
   data: ActivityLogRow[] | null
@@ -27,7 +28,7 @@ export async function fetchActivityLogs(limit = 50): Promise<ActivityLogsResult>
     .limit(limit)
 
   if (error) {
-    return { data: null, error: error.message }
+    return { data: null, error: humanizeError(error.message, 'Could not load recent activity. Please try again.') }
   }
 
   return { data, error: null }

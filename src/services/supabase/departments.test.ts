@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { supabase } from '../../lib/supabase'
 import {
+  fetchDepartments,
   buildDepartmentNameById,
   createDepartment,
   updateDepartment,
@@ -20,6 +21,29 @@ const rpc = vi.mocked(supabase.rpc)
 beforeEach(() => {
   from.mockReset()
   rpc.mockReset()
+})
+
+describe('fetchDepartments', () => {
+  it('returns departments ordered by name on success', async () => {
+    const rows: DepartmentRow[] = [{ id: 'dept-1', name: 'Engineering', created_at: '2024-01-01T00:00:00Z' }]
+    from.mockReturnValue({ select: () => ({ order: () => Promise.resolve({ data: rows, error: null }) }) } as never)
+
+    const result = await fetchDepartments()
+
+    expect(result.data).toEqual(rows)
+    expect(result.error).toBeNull()
+  })
+
+  it('returns a friendly error on failure instead of a raw technical message', async () => {
+    from.mockReturnValue({
+      select: () => ({ order: () => Promise.resolve({ data: null, error: { message: 'permission denied for table departments' } }) }),
+    } as never)
+
+    const result = await fetchDepartments()
+
+    expect(result.data).toBeNull()
+    expect(result.error).toBe('Could not load departments. Please try again.')
+  })
 })
 
 describe('buildDepartmentNameById', () => {

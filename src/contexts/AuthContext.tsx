@@ -1,13 +1,13 @@
-// Stage 3.1: React auth context -- tracks the current Supabase session,
-// user, profile (including role), and loading state, and keeps them in
-// sync with Supabase Auth's state-change events.
+// React auth context -- tracks the current Supabase session, user, profile
+// (including role), and loading state, and keeps them in sync with Supabase
+// Auth's state-change events.
 //
 // This is UI-layer bookkeeping only, not a security boundary: Row Level
-// Security (a later, separately-approved stage) is what actually enforces
-// access to data. Nothing here ever logs tokens, passwords, or session
-// objects.
+// Security and the SECURITY DEFINER RPCs (migrations 0012-0014) are what
+// actually enforce access to data. Nothing here ever logs tokens, passwords,
+// or session objects.
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import type { ProfileRow } from '../types/database'
 import {
@@ -27,8 +27,10 @@ export interface AuthContextValue {
   loading: boolean
   authError: string | null
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: string | null }>
   signOut: () => Promise<{ error: string | null }>
+  /** Re-fetches the current user's profile row -- call after a change that affects it (e.g. Settings saving a new display name). */
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -43,32 +45,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
 
+  // Loads (or clears) the profile row for whichever user id is given. A
+  // missing/inaccessible profile is surfaced via authError but never blocks
+  // sign-in -- the user is still authenticated even if their profile row is
+  // momentarily unavailable (e.g. immediately after sign-up, before the
+  // database trigger has run).
+  const syncProfile = useCallback(async (userId: string | undefined) => {
+    if (!userId) {
+      setProfile(null)
+      return
+    }
+
+    const result = await fetchProfileById(userId)
+
+    if (result.error) {
+      setAuthError(result.error)
+      setProfile(null)
+      return
+    }
+
+    setProfile(result.data)
+  }, [])
+
   useEffect(() => {
     let isMounted = true
-
-    // Loads (or clears) the profile row for whichever session is current.
-    // A missing/inaccessible profile is surfaced via authError but never
-    // blocks sign-in -- the user is still authenticated even if their
-    // profile row is momentarily unavailable (e.g. immediately after
-    // sign-up, before the database trigger has run).
-    async function syncProfile(nextSession: Session | null) {
-      if (!nextSession?.user) {
-        if (isMounted) setProfile(null)
-        return
-      }
-
-      const result = await fetchProfileById(nextSession.user.id)
-
-      if (!isMounted) return
-
-      if (result.error) {
-        setAuthError(result.error)
-        setProfile(null)
-        return
-      }
-
-      setProfile(result.data)
-    }
 
     async function init() {
       const { session: initialSession, error } = await getCurrentSession()
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       setSession(initialSession)
-      await syncProfile(initialSession)
+      await syncProfile(initialSession?.user.id)
 
       if (isMounted) {
         setLoading(false)
@@ -92,14 +92,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const unsubscribe = onAuthStateChange((nextSession) => {
       if (!isMounted) return
       setSession(nextSession)
-      void syncProfile(nextSession)
+      void syncProfile(nextSession?.user.id)
     })
 
     return () => {
       isMounted = false
       unsubscribe()
     }
-  }, [])
+  }, [syncProfile])
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -113,13 +113,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const result = await signInWithPassword(email, password)
         return { error: result.error }
       },
-      signUp: async (email, password) => {
-        const result = await signUpUser(email, password)
+      signUp: async (email, password, fullName) => {
+        const result = await signUpUser(email, password, fullName)
         return { error: result.error }
       },
       signOut: async () => signOutUser(),
+      refreshProfile: () => syncProfile(session?.user.id),
     }),
-    [session, profile, loading, authError],
+    [session, profile, loading, authError, syncProfile],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

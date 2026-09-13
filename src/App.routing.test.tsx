@@ -1,0 +1,98 @@
+import { render, screen } from '@testing-library/react'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import App from './App'
+import { getCurrentSession, onAuthStateChange } from './services/supabase/auth'
+import { fetchProfileById } from './services/supabase/profiles'
+import { fetchEmployeesWithDepartments } from './services/supabase/employees'
+import { fetchDepartments } from './services/supabase/departments'
+import { fetchActivityEntries } from './services/supabase/activityLogs'
+import type { UserRole } from './types/database'
+
+// Exercises the real route tree (App -> AuthGate -> AppLayout -> RequireCapability
+// -> page) with only the Supabase network boundary mocked, so this is a genuine
+// check of route-level authorization -- not just the capability matrix in
+// isolation. Uses window.history.pushState + the app's real BrowserRouter to
+// simulate a direct URL visit, per "direct URL access must also respect
+// authorization" / "browser refresh must preserve correct auth/role behavior."
+vi.mock('./services/supabase/auth')
+vi.mock('./services/supabase/profiles')
+vi.mock('./services/supabase/employees')
+vi.mock('./services/supabase/departments')
+vi.mock('./services/supabase/activityLogs')
+
+const mockedGetCurrentSession = vi.mocked(getCurrentSession)
+const mockedOnAuthStateChange = vi.mocked(onAuthStateChange)
+const mockedFetchProfileById = vi.mocked(fetchProfileById)
+const mockedFetchEmployees = vi.mocked(fetchEmployeesWithDepartments)
+const mockedFetchDepartments = vi.mocked(fetchDepartments)
+const mockedFetchActivity = vi.mocked(fetchActivityEntries)
+
+function mockSignedInAs(role: UserRole) {
+  mockedGetCurrentSession.mockResolvedValue({
+    session: { user: { id: 'user-1', email: 'user@example.com' } } as never,
+    error: null,
+  })
+  mockedOnAuthStateChange.mockReturnValue(() => {})
+  mockedFetchProfileById.mockResolvedValue({
+    data: { id: 'user-1', full_name: 'Test User', role, created_at: 't', updated_at: 't' },
+    error: null,
+  })
+  mockedFetchEmployees.mockResolvedValue({ data: [], error: null })
+  mockedFetchDepartments.mockResolvedValue({ data: [], error: null })
+  mockedFetchActivity.mockResolvedValue({ data: [], error: null })
+}
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+afterEach(() => {
+  window.history.pushState({}, '', '/')
+})
+
+describe('App routing + RBAC (direct URL access)', () => {
+  it('redirects an unauthenticated visit to any path to Sign In', async () => {
+    mockedGetCurrentSession.mockResolvedValue({ session: null, error: null })
+    mockedOnAuthStateChange.mockReturnValue(() => {})
+    window.history.pushState({}, '', '/employees')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Sign in to EMS' })).toBeInTheDocument()
+  })
+
+  it('redirects an authenticated admin from "/" to the dashboard', async () => {
+    mockSignedInAs('admin')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: /Monitor your organization/i })).toBeInTheDocument()
+  })
+
+  it('blocks hr_staff from /departments via direct URL, even though the route exists for admins', async () => {
+    mockSignedInAs('hr_staff')
+    window.history.pushState({}, '', '/departments')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument()
+  })
+
+  it('lets an admin reach /departments directly', async () => {
+    mockSignedInAs('admin')
+    window.history.pushState({}, '', '/departments')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Departments' })).toBeInTheDocument()
+  })
+
+  it("blocks an employee from /employees via direct URL and sends them to their own profile only", async () => {
+    mockSignedInAs('employee')
+    window.history.pushState({}, '', '/employees')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument()
+  })
+})

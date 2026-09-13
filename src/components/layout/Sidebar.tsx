@@ -1,4 +1,4 @@
-import { Activity, Building2, LayoutDashboard, LogOut, Sparkles, User, Users, X } from 'lucide-react'
+import { Activity, Building2, LayoutDashboard, LogOut, Settings, Sparkles, User, Users, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import type { ComponentType } from 'react'
 import type { NavItem, RouteId } from '../../types/navigation'
@@ -11,6 +11,7 @@ const NAV_ICONS: Record<RouteId, ComponentType<{ className?: string }>> = {
   activity: Activity,
   insights: Sparkles,
   'my-profile': User,
+  settings: Settings,
 }
 
 interface SidebarContentProps {
