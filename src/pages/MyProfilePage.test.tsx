@@ -22,6 +22,7 @@ const myEmployee: Employee = {
   location: 'Remote',
   status: 'Active',
   joiningDate: '2020-01-01',
+  profileId: 'user-1',
 }
 
 function baseContext(overrides: Partial<ReturnType<typeof useAppOutletContext>> = {}) {

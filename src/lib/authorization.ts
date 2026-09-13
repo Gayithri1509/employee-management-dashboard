@@ -18,6 +18,8 @@ export interface Capabilities {
   canDeleteEmployee: boolean
   canManageDepartments: boolean
   canManageRoles: boolean
+  /** Link/unlink an employee record to an authenticated profile for self-service access -- admin + hr_manager, per supabase/migrations/0019_employee_profile_linking.sql. */
+  canManageEmployeeLinking: boolean
   canViewActivity: boolean
   canViewInsights: boolean
   canViewOwnProfile: boolean
@@ -35,6 +37,7 @@ const NONE: Capabilities = {
   canDeleteEmployee: false,
   canManageDepartments: false,
   canManageRoles: false,
+  canManageEmployeeLinking: false,
   canViewActivity: false,
   canViewInsights: false,
   canViewOwnProfile: false,
@@ -52,6 +55,7 @@ const ADMIN: Capabilities = {
   canDeleteEmployee: true,
   canManageDepartments: true,
   canManageRoles: true,
+  canManageEmployeeLinking: true,
   canViewActivity: true,
   canViewInsights: true,
   canViewSettings: true,

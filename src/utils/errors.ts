@@ -27,6 +27,7 @@ const SAFE_MESSAGE_PATTERNS: RegExp[] = [
   /^only /i,
   /^no /i,
   /not linked/i,
+  /already linked/i,
   /invalid login credentials/i,
   /invalid email/i,
   /email not confirmed/i,

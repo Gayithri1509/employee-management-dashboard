@@ -17,4 +17,9 @@ export interface Employee {
   location: string
   status: EmployeeStatus
   joiningDate: string
+  // Which authenticated profile (if any) this employee is linked to for
+  // self-service access -- see supabase/migrations/0019_employee_profile_linking.sql.
+  // Never set from the client; only link_employee_profile/unlink_employee_profile
+  // may change it.
+  profileId: string | null
 }

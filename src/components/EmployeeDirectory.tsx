@@ -17,6 +17,7 @@ interface EmployeeDirectoryProps {
   canEdit: boolean
   canToggleStatus: boolean
   canDelete: boolean
+  canManageLinking: boolean
   busyEmployeeId: string | null
   onSearchChange: (value: string) => void
   onDepartmentChange: (value: string) => void
@@ -26,6 +27,8 @@ interface EmployeeDirectoryProps {
   onEditEmployee: (employee: Employee) => void
   onToggleStatus: (employee: Employee) => void
   onDeleteEmployee: (employee: Employee) => void
+  onLinkAccount: (employee: Employee) => void
+  onUnlinkAccount: (employee: Employee) => void
   hasActiveFilters: boolean
   onResetFilters: () => void
 }
@@ -42,6 +45,7 @@ function EmployeeDirectory({
   canEdit,
   canToggleStatus,
   canDelete,
+  canManageLinking,
   busyEmployeeId,
   onSearchChange,
   onDepartmentChange,
@@ -51,6 +55,8 @@ function EmployeeDirectory({
   onEditEmployee,
   onToggleStatus,
   onDeleteEmployee,
+  onLinkAccount,
+  onUnlinkAccount,
   hasActiveFilters,
   onResetFilters,
 }: EmployeeDirectoryProps) {
@@ -123,10 +129,13 @@ function EmployeeDirectory({
               canEdit={canEdit}
               canToggleStatus={canToggleStatus}
               canDelete={canDelete}
+              canManageLinking={canManageLinking}
               busyEmployeeId={busyEmployeeId}
               onEditEmployee={onEditEmployee}
               onToggleStatus={onToggleStatus}
               onDeleteEmployee={onDeleteEmployee}
+              onLinkAccount={onLinkAccount}
+              onUnlinkAccount={onUnlinkAccount}
               onResetFilters={onResetFilters}
             />
           </div>

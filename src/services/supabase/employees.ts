@@ -63,6 +63,7 @@ export function mapEmployeeRowToEmployee(
     location: row.location ?? '',
     status: row.status,
     joiningDate: row.joining_date,
+    profileId: row.profile_id,
   }
 }
 

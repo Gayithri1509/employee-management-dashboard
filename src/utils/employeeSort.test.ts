@@ -13,6 +13,7 @@ function makeEmployee(overrides: Partial<Employee>): Employee {
     location: '',
     status: 'Active',
     joiningDate: '2020-01-01',
+    profileId: null,
     ...overrides,
   }
 }

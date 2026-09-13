@@ -13,6 +13,7 @@ const employees: Employee[] = [
     location: 'Remote',
     status: 'Active',
     joiningDate: '2020-01-01',
+    profileId: null,
   },
   {
     id: '2',
@@ -24,6 +25,7 @@ const employees: Employee[] = [
     location: 'Boston',
     status: 'On Leave',
     joiningDate: '2018-01-01',
+    profileId: null,
   },
   {
     id: '3',
@@ -35,6 +37,7 @@ const employees: Employee[] = [
     location: 'Chicago',
     status: 'Active',
     joiningDate: '2019-01-01',
+    profileId: null,
   },
 ]
 

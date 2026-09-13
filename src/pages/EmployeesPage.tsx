@@ -3,15 +3,22 @@ import { useSearchParams } from 'react-router-dom'
 import { useAppOutletContext } from '../layouts/appOutletContext'
 import type { Employee, EmployeeStatus } from '../types/employee'
 import { createEmployee, updateEmployee, setEmployeeStatus, deleteEmployee } from '../services/supabase/employees'
+import {
+  fetchLinkableProfiles,
+  linkEmployeeProfile,
+  unlinkEmployeeProfile,
+  type LinkableProfile,
+} from '../services/supabase/employeeLinking'
 import { sortEmployees, type SortOption } from '../utils/employeeSort'
 import { filterEmployees } from '../utils/employeeFilter'
 import EmployeeDirectory from '../components/EmployeeDirectory'
 import EmployeeFormModal, { type EmployeeFormValues } from '../components/EmployeeFormModal'
 import ConfirmDialog from '../components/ConfirmDialog'
+import LinkEmployeeDialog from '../components/LinkEmployeeDialog'
 import LoadingState from '../components/LoadingState'
 import ErrorState from '../components/ErrorState'
 
-type ConfirmActionType = 'deactivate' | 'reactivate' | 'delete'
+type ConfirmActionType = 'deactivate' | 'reactivate' | 'delete' | 'unlink'
 
 interface ConfirmAction {
   type: ConfirmActionType
@@ -48,6 +55,12 @@ function EmployeesPage() {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
   const [confirmBusy, setConfirmBusy] = useState(false)
   const [busyEmployeeId, setBusyEmployeeId] = useState<string | null>(null)
+
+  const [linkTarget, setLinkTarget] = useState<Employee | null>(null)
+  const [linkableProfiles, setLinkableProfiles] = useState<LinkableProfile[]>([])
+  const [linkableProfilesLoading, setLinkableProfilesLoading] = useState(false)
+  const [linkBusy, setLinkBusy] = useState(false)
+  const [linkError, setLinkError] = useState<string | null>(null)
 
   // Consumes the one-time deep-link params (?q= from the header quick
   // search, ?add=1 from the Overview page's Quick Actions) so they don't
@@ -139,6 +152,21 @@ function EmployeesPage() {
       return
     }
 
+    if (confirmAction.type === 'unlink') {
+      const result = await unlinkEmployeeProfile(confirmAction.employee.id)
+      setConfirmBusy(false)
+      setBusyEmployeeId(null)
+      setConfirmAction(null)
+
+      if (result.error) {
+        showToast(result.error)
+        return
+      }
+      showToast(`${confirmAction.employee.name}'s account was unlinked.`)
+      void refreshAll()
+      return
+    }
+
     const nextStatus: EmployeeStatus = confirmAction.type === 'deactivate' ? 'Inactive' : 'Active'
     const result = await setEmployeeStatus(confirmAction.employee.id, nextStatus, departmentNameById)
     setConfirmBusy(false)
@@ -155,6 +183,49 @@ function EmployeesPage() {
         ? `${confirmAction.employee.name} was deactivated.`
         : `${confirmAction.employee.name} was reactivated.`,
     )
+    void refreshAll()
+  }
+
+  async function handleOpenLinkDialog(employee: Employee) {
+    setLinkTarget(employee)
+    setLinkError(null)
+    setLinkableProfilesLoading(true)
+
+    const result = await fetchLinkableProfiles()
+
+    if (result.data) {
+      setLinkableProfiles(result.data)
+    } else {
+      setLinkableProfiles([])
+      setLinkError(result.error ?? 'Could not load linkable accounts.')
+    }
+
+    setLinkableProfilesLoading(false)
+  }
+
+  function closeLinkDialog() {
+    if (linkBusy) return
+    setLinkTarget(null)
+    setLinkableProfiles([])
+    setLinkError(null)
+  }
+
+  async function handleConfirmLink(profileId: string) {
+    if (!linkTarget) return
+    setLinkBusy(true)
+    setLinkError(null)
+
+    const result = await linkEmployeeProfile(linkTarget.id, profileId)
+    setLinkBusy(false)
+
+    if (result.error) {
+      setLinkError(result.error)
+      return
+    }
+
+    showToast(`${linkTarget.name}'s account was linked.`)
+    setLinkTarget(null)
+    setLinkableProfiles([])
     void refreshAll()
   }
 
@@ -180,6 +251,7 @@ function EmployeesPage() {
         canEdit={capabilities.canEditEmployee}
         canToggleStatus={capabilities.canDeactivateEmployee}
         canDelete={capabilities.canDeleteEmployee}
+        canManageLinking={capabilities.canManageEmployeeLinking}
         busyEmployeeId={busyEmployeeId}
         onSearchChange={setSearchTerm}
         onDepartmentChange={setDepartment}
@@ -197,6 +269,8 @@ function EmployeesPage() {
           setConfirmAction({ type: employee.status === 'Active' ? 'deactivate' : 'reactivate', employee })
         }
         onDeleteEmployee={(employee) => setConfirmAction({ type: 'delete', employee })}
+        onLinkAccount={(employee) => void handleOpenLinkDialog(employee)}
+        onUnlinkAccount={(employee) => setConfirmAction({ type: 'unlink', employee })}
         hasActiveFilters={hasActiveFilters}
         onResetFilters={handleResetFilters}
       />
@@ -242,22 +316,44 @@ function EmployeesPage() {
               ? `Delete ${confirmAction.employee.name}?`
               : confirmAction.type === 'deactivate'
                 ? `Deactivate ${confirmAction.employee.name}?`
-                : `Reactivate ${confirmAction.employee.name}?`
+                : confirmAction.type === 'reactivate'
+                  ? `Reactivate ${confirmAction.employee.name}?`
+                  : `Unlink account for ${confirmAction.employee.name}?`
           }
           description={
             confirmAction.type === 'delete'
               ? 'This permanently removes the employee record. This cannot be undone.'
               : confirmAction.type === 'deactivate'
                 ? 'This marks the employee as Inactive. You can reactivate them at any time.'
-                : 'This marks the employee as Active again.'
+                : confirmAction.type === 'reactivate'
+                  ? 'This marks the employee as Active again.'
+                  : "This removes their self-service link. They'll lose access to their My Profile page until relinked."
           }
           confirmLabel={
-            confirmAction.type === 'delete' ? 'Delete' : confirmAction.type === 'deactivate' ? 'Deactivate' : 'Reactivate'
+            confirmAction.type === 'delete'
+              ? 'Delete'
+              : confirmAction.type === 'deactivate'
+                ? 'Deactivate'
+                : confirmAction.type === 'reactivate'
+                  ? 'Reactivate'
+                  : 'Unlink'
           }
-          tone={confirmAction.type === 'delete' ? 'danger' : 'default'}
+          tone={confirmAction.type === 'delete' || confirmAction.type === 'unlink' ? 'danger' : 'default'}
           busy={confirmBusy}
           onConfirm={() => void handleConfirm()}
           onCancel={() => setConfirmAction(null)}
+        />
+      )}
+
+      {linkTarget && (
+        <LinkEmployeeDialog
+          employeeName={linkTarget.name}
+          profiles={linkableProfiles}
+          loading={linkableProfilesLoading}
+          busy={linkBusy}
+          error={linkError}
+          onConfirm={(profileId) => void handleConfirmLink(profileId)}
+          onCancel={closeLinkDialog}
         />
       )}
     </div>

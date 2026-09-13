@@ -56,7 +56,14 @@ describe('mapEmployeeRowToEmployee', () => {
       location: 'Remote',
       status: 'Active',
       joiningDate: '2020-01-01',
+      profileId: null,
     })
+  })
+
+  it('maps a linked profile_id through as profileId', () => {
+    const result = mapEmployeeRowToEmployee(makeRow({ profile_id: 'user-1' }), departmentNameById)
+
+    expect(result?.profileId).toBe('user-1')
   })
 
   it('defaults null phone/location to empty strings', () => {

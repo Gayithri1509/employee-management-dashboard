@@ -224,6 +224,27 @@ export interface Database {
         }
         Returns: Database['public']['Tables']['profiles']['Row']
       }
+      link_employee_profile: {
+        Args: {
+          p_employee_id: string
+          p_target_profile_id: string
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      unlink_employee_profile: {
+        Args: {
+          p_employee_id: string
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      list_linkable_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          full_name: string | null
+          email: string
+        }[]
+      }
     }
     Enums: {
       user_role: UserRole

@@ -1,4 +1,4 @@
-import { Building2, Calendar, Mail, MapPin, Pencil, Phone, Power, Trash2 } from 'lucide-react'
+import { Building2, Calendar, Link2, Mail, MapPin, Pencil, Phone, Power, Trash2, Unlink } from 'lucide-react'
 import type { Employee } from '../types/employee'
 import StatusBadge from './StatusBadge'
 import { formatJoiningDate, getInitials } from '../utils/formatting'
@@ -8,10 +8,13 @@ interface EmployeeCardProps {
   canEdit: boolean
   canToggleStatus: boolean
   canDelete: boolean
+  canManageLinking: boolean
   isBusy: boolean
   onEdit: (employee: Employee) => void
   onToggleStatus: (employee: Employee) => void
   onDelete: (employee: Employee) => void
+  onLinkAccount: (employee: Employee) => void
+  onUnlinkAccount: (employee: Employee) => void
 }
 
 const AVATAR_PALETTE = [
@@ -31,8 +34,21 @@ function avatarColorFor(id: string): string {
 const actionButtonClass =
   'flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-transparent disabled:hover:text-slate-600'
 
-function EmployeeCard({ employee, canEdit, canToggleStatus, canDelete, isBusy, onEdit, onToggleStatus, onDelete }: EmployeeCardProps) {
+function EmployeeCard({
+  employee,
+  canEdit,
+  canToggleStatus,
+  canDelete,
+  canManageLinking,
+  isBusy,
+  onEdit,
+  onToggleStatus,
+  onDelete,
+  onLinkAccount,
+  onUnlinkAccount,
+}: EmployeeCardProps) {
   const isActive = employee.status === 'Active'
+  const isLinked = employee.profileId !== null
 
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md motion-reduce:hover:translate-y-0">
@@ -56,6 +72,14 @@ function EmployeeCard({ employee, canEdit, canToggleStatus, canDelete, isBusy, o
           <Building2 className="h-3 w-3" />
           {employee.department}
         </span>
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+            isLinked ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+          }`}
+        >
+          {isLinked ? <Link2 className="h-3 w-3" /> : <Unlink className="h-3 w-3" />}
+          {isLinked ? 'Linked' : 'Not linked'}
+        </span>
       </div>
 
       <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-500">
@@ -77,7 +101,7 @@ function EmployeeCard({ employee, canEdit, canToggleStatus, canDelete, isBusy, o
         </p>
       </div>
 
-      {(canEdit || canToggleStatus || canDelete) && (
+      {(canEdit || canToggleStatus || canManageLinking || canDelete) && (
         <div className="mt-auto flex gap-2 pt-3">
           {canEdit && (
             <button
@@ -104,6 +128,30 @@ function EmployeeCard({ employee, canEdit, canToggleStatus, canDelete, isBusy, o
               {isActive ? 'Deactivate' : 'Reactivate'}
             </button>
           )}
+          {canManageLinking &&
+            (isLinked ? (
+              <button
+                type="button"
+                onClick={() => onUnlinkAccount(employee)}
+                disabled={isBusy}
+                aria-label={`Unlink account for ${employee.name}`}
+                title="Unlink account"
+                className={`${actionButtonClass} flex-none px-2.5`}
+              >
+                <Unlink className="h-3.5 w-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onLinkAccount(employee)}
+                disabled={isBusy}
+                aria-label={`Link account for ${employee.name}`}
+                title="Link account"
+                className={`${actionButtonClass} flex-none px-2.5`}
+              >
+                <Link2 className="h-3.5 w-3.5" />
+              </button>
+            ))}
           {canDelete && (
             <button
               type="button"

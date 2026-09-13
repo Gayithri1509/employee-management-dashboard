@@ -8,10 +8,13 @@ interface EmployeeGridProps {
   canEdit: boolean
   canToggleStatus: boolean
   canDelete: boolean
+  canManageLinking: boolean
   busyEmployeeId: string | null
   onEditEmployee: (employee: Employee) => void
   onToggleStatus: (employee: Employee) => void
   onDeleteEmployee: (employee: Employee) => void
+  onLinkAccount: (employee: Employee) => void
+  onUnlinkAccount: (employee: Employee) => void
   onResetFilters: () => void
 }
 
@@ -20,10 +23,13 @@ function EmployeeGrid({
   canEdit,
   canToggleStatus,
   canDelete,
+  canManageLinking,
   busyEmployeeId,
   onEditEmployee,
   onToggleStatus,
   onDeleteEmployee,
+  onLinkAccount,
+  onUnlinkAccount,
   onResetFilters,
 }: EmployeeGridProps) {
   if (employees.length === 0) {
@@ -51,10 +57,13 @@ function EmployeeGrid({
             canEdit={canEdit}
             canToggleStatus={canToggleStatus}
             canDelete={canDelete}
+            canManageLinking={canManageLinking}
             isBusy={busyEmployeeId === employee.id}
             onEdit={onEditEmployee}
             onToggleStatus={onToggleStatus}
             onDelete={onDeleteEmployee}
+            onLinkAccount={onLinkAccount}
+            onUnlinkAccount={onUnlinkAccount}
           />
         </div>
       ))}
