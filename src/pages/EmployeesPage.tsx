@@ -42,7 +42,7 @@ function EmployeesPage() {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') ?? '')
-  const [department, setDepartment] = useState('all')
+  const [department, setDepartment] = useState(searchParams.get('department') ?? 'all')
   const [status, setStatus] = useState('all')
   const [sortBy, setSortBy] = useState<SortOption>('name-asc')
 
@@ -63,10 +63,11 @@ function EmployeesPage() {
   const [linkError, setLinkError] = useState<string | null>(null)
 
   // Consumes the one-time deep-link params (?q= from the header quick
-  // search, ?add=1 from the Overview page's Quick Actions) so they don't
-  // linger in the URL or re-trigger anything on a later render.
+  // search, ?add=1 from the Overview page's Quick Actions, ?department=
+  // from the Insights page's department drill-down) so they don't linger in
+  // the URL or re-trigger anything on a later render.
   useEffect(() => {
-    if (searchParams.get('add') || searchParams.get('q')) {
+    if (searchParams.get('add') || searchParams.get('q') || searchParams.get('department')) {
       setSearchParams({}, { replace: true })
     }
   }, [searchParams, setSearchParams])
