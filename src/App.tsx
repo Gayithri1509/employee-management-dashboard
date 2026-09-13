@@ -12,6 +12,7 @@ import ActivityPage from './pages/ActivityPage'
 import InsightsPage from './pages/InsightsPage'
 import MyProfilePage from './pages/MyProfilePage'
 import SettingsPage from './pages/SettingsPage'
+import UsersPage from './pages/UsersPage'
 import AccessDenied from './pages/AccessDenied'
 
 /** "/" has no fixed destination -- it resolves to whatever the viewer's own capabilities allow. */
@@ -98,6 +99,14 @@ function AuthGate() {
           element={
             <RequireCapability capability="canViewSettings">
               <SettingsPage />
+            </RequireCapability>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <RequireCapability capability="canManageRoles">
+              <UsersPage />
             </RequireCapability>
           }
         />

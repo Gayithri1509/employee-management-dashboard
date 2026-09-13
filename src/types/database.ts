@@ -206,6 +206,24 @@ export interface Database {
         }
         Returns: Database['public']['Tables']['profiles']['Row']
       }
+      list_profiles_for_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          full_name: string | null
+          email: string
+          role: UserRole
+          created_at: string
+          last_sign_in_at: string | null
+        }[]
+      }
+      set_user_role: {
+        Args: {
+          p_user_id: string
+          p_role: UserRole
+        }
+        Returns: Database['public']['Tables']['profiles']['Row']
+      }
     }
     Enums: {
       user_role: UserRole

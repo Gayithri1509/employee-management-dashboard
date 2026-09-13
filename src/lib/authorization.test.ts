@@ -48,6 +48,7 @@ describe('getCapabilities', () => {
     expect(caps.canManageDepartments).toBe(false)
     expect(caps.canViewActivity).toBe(false)
     expect(caps.canViewInsights).toBe(false)
+    expect(caps.canManageRoles).toBe(false)
   })
 
   it('grants a null role (no session/profile) nothing at all', () => {

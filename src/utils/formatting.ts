@@ -27,6 +27,13 @@ export function formatJoiningDate(isoDate: string): string {
   return `${MONTH_NAMES[monthIndex]} ${year}`
 }
 
+/** Formats a full ISO timestamp (e.g. auth.users.last_sign_in_at) for display. */
+export function formatDateTime(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp)
+  if (Number.isNaN(date.getTime())) return isoTimestamp
+  return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+}
+
 export function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return ''

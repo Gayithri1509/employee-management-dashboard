@@ -4,7 +4,15 @@ import type { Capabilities } from '../lib/authorization'
 // Which items appear is entirely a function of the viewer's capabilities --
 // see getNavItems below -- so a role change is reflected here automatically
 // with no separate per-role list to keep in sync.
-export type RouteId = 'overview' | 'employees' | 'departments' | 'activity' | 'insights' | 'my-profile' | 'settings'
+export type RouteId =
+  | 'overview'
+  | 'employees'
+  | 'departments'
+  | 'activity'
+  | 'insights'
+  | 'my-profile'
+  | 'settings'
+  | 'users'
 
 export interface NavItem {
   id: RouteId
@@ -46,6 +54,9 @@ export function getNavItems(capabilities: Capabilities): NavItem[] {
   }
   if (capabilities.canViewInsights) {
     items.push({ id: 'insights', label: 'Insights', path: '/insights' })
+  }
+  if (capabilities.canManageRoles) {
+    items.push({ id: 'users', label: 'User & Access', path: '/users' })
   }
   if (capabilities.canViewSettings) {
     items.push({ id: 'settings', label: 'Settings', path: '/settings' })

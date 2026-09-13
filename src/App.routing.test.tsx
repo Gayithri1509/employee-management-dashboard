@@ -6,6 +6,7 @@ import { fetchProfileById } from './services/supabase/profiles'
 import { fetchEmployeesWithDepartments } from './services/supabase/employees'
 import { fetchDepartments } from './services/supabase/departments'
 import { fetchActivityEntries } from './services/supabase/activityLogs'
+import { fetchUsersForAdmin } from './services/supabase/users'
 import type { UserRole } from './types/database'
 
 // Exercises the real route tree (App -> AuthGate -> AppLayout -> RequireCapability
@@ -19,6 +20,7 @@ vi.mock('./services/supabase/profiles')
 vi.mock('./services/supabase/employees')
 vi.mock('./services/supabase/departments')
 vi.mock('./services/supabase/activityLogs')
+vi.mock('./services/supabase/users')
 
 const mockedGetCurrentSession = vi.mocked(getCurrentSession)
 const mockedOnAuthStateChange = vi.mocked(onAuthStateChange)
@@ -26,6 +28,7 @@ const mockedFetchProfileById = vi.mocked(fetchProfileById)
 const mockedFetchEmployees = vi.mocked(fetchEmployeesWithDepartments)
 const mockedFetchDepartments = vi.mocked(fetchDepartments)
 const mockedFetchActivity = vi.mocked(fetchActivityEntries)
+const mockedFetchUsersForAdmin = vi.mocked(fetchUsersForAdmin)
 
 function mockSignedInAs(role: UserRole) {
   mockedGetCurrentSession.mockResolvedValue({
@@ -40,6 +43,7 @@ function mockSignedInAs(role: UserRole) {
   mockedFetchEmployees.mockResolvedValue({ data: [], error: null })
   mockedFetchDepartments.mockResolvedValue({ data: [], error: null })
   mockedFetchActivity.mockResolvedValue({ data: [], error: null })
+  mockedFetchUsersForAdmin.mockResolvedValue({ data: [], error: null })
 }
 
 beforeEach(() => {
@@ -94,5 +98,23 @@ describe('App routing + RBAC (direct URL access)', () => {
     render(<App />)
 
     expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument()
+  })
+
+  it('blocks hr_manager from /users via direct URL -- User & Access is admin-only', async () => {
+    mockSignedInAs('hr_manager')
+    window.history.pushState({}, '', '/users')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument()
+  })
+
+  it('lets an admin reach /users directly', async () => {
+    mockSignedInAs('admin')
+    window.history.pushState({}, '', '/users')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'User & Access' })).toBeInTheDocument()
   })
 })
