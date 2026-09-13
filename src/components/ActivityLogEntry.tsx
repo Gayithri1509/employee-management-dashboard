@@ -1,4 +1,4 @@
-import { Sparkles, UserCog } from 'lucide-react'
+import { ShieldCheck, Sparkles, UserCog } from 'lucide-react'
 import type { ActivityEntry } from '../types/activity'
 
 interface ActivityLogEntryProps {
@@ -9,6 +9,7 @@ interface ActivityLogEntryProps {
 const TYPE_META: Record<ActivityEntry['type'], { label: string; icon: typeof Sparkles; wrap: string; icon_color: string }> = {
   system: { label: 'System', icon: Sparkles, wrap: 'bg-slate-100', icon_color: 'text-slate-500' },
   'employee-update': { label: 'Update', icon: UserCog, wrap: 'bg-indigo-50', icon_color: 'text-indigo-600' },
+  'role-change': { label: 'Role Change', icon: ShieldCheck, wrap: 'bg-violet-50', icon_color: 'text-violet-600' },
 }
 
 function formatTimestamp(isoTimestamp: string): string {

@@ -12,7 +12,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type UserRole = 'admin' | 'hr_manager' | 'hr_staff' | 'employee'
 export type EmployeeStatusRow = 'Active' | 'Inactive' | 'On Leave'
-export type ActivityTypeRow = 'system' | 'employee-update' | 'auth'
+export type ActivityTypeRow = 'system' | 'employee-update' | 'auth' | 'role-change'
 
 export interface Database {
   public: {

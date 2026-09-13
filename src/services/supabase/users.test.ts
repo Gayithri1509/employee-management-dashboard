@@ -3,13 +3,15 @@ import { supabase } from '../../lib/supabase'
 import { fetchUsersForAdmin, setUserRole } from './users'
 
 vi.mock('../../lib/supabase', () => ({
-  supabase: { rpc: vi.fn() },
+  supabase: { rpc: vi.fn(), from: vi.fn() },
 }))
 
 const rpc = vi.mocked(supabase.rpc)
+const from = vi.mocked(supabase.from)
 
 beforeEach(() => {
   rpc.mockReset()
+  from.mockReset()
 })
 
 describe('fetchUsersForAdmin', () => {
@@ -99,5 +101,16 @@ describe('setUserRole', () => {
     const result = await setUserRole('does-not-exist', 'employee')
 
     expect(result.error).toBe('User not found.')
+  })
+
+  it('never touches activity_logs (or any table) directly -- the role-change audit entry is written entirely inside set_user_role', async () => {
+    rpc.mockResolvedValueOnce({
+      data: { id: 'user-2', full_name: 'Priya', role: 'hr_manager', created_at: 't', updated_at: 't' },
+      error: null,
+    } as never)
+
+    await setUserRole('user-2', 'hr_manager')
+
+    expect(from).not.toHaveBeenCalled()
   })
 })

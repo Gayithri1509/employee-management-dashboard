@@ -41,10 +41,11 @@ export async function fetchActivityLogs(limit = 50): Promise<ActivityLogsResult>
  * union does not model yet (see src/types/activity.ts) -- nothing writes
  * 'auth' rows today (see docs/database-architecture.md), but the mapper
  * still handles it defensively, the same "skip and report" pattern used by
- * mapEmployeeRowToEmployee for unrecognized values.
+ * mapEmployeeRowToEmployee for unrecognized values. 'role-change' rows
+ * (written by set_user_role(), migration 0018) map like any other type.
  */
 export function mapActivityLogRowToEntry(row: ActivityLogRow): ActivityEntry | null {
-  if (row.type !== 'system' && row.type !== 'employee-update') {
+  if (row.type !== 'system' && row.type !== 'employee-update' && row.type !== 'role-change') {
     return null
   }
 
