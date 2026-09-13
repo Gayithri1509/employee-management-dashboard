@@ -117,4 +117,51 @@ describe('App routing + RBAC (direct URL access)', () => {
 
     expect(await screen.findByRole('heading', { name: 'User & Access' })).toBeInTheDocument()
   })
+
+  it('blocks hr_staff from /users via direct URL -- role management is admin-only', async () => {
+    mockSignedInAs('hr_staff')
+    window.history.pushState({}, '', '/users')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument()
+  })
+
+  it.each(['/departments', '/activity', '/insights', '/users'])(
+    'blocks an employee from %s via direct URL -- no organization-wide or privileged data',
+    async (path) => {
+      mockSignedInAs('employee')
+      window.history.pushState({}, '', path)
+
+      render(<App />)
+
+      expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument()
+    },
+  )
+
+  it('lets an employee reach their own /my-profile directly (route access succeeds; no employee record is linked in this mock, so the page correctly shows its own "not linked" state)', async () => {
+    mockSignedInAs('employee')
+    window.history.pushState({}, '', '/my-profile')
+
+    render(<App />)
+
+    expect(await screen.findByText('Profile not linked')).toBeInTheDocument()
+  })
+
+  it('redirects an authenticated employee from "/" to their own profile route, not the org dashboard', async () => {
+    mockSignedInAs('employee')
+
+    render(<App />)
+
+    expect(await screen.findByText('Profile not linked')).toBeInTheDocument()
+  })
+
+  it('lets an employee reach their own /settings directly', async () => {
+    mockSignedInAs('employee')
+    window.history.pushState({}, '', '/settings')
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+  })
 })

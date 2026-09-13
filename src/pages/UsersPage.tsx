@@ -13,7 +13,7 @@ import ChangeRoleDialog from '../components/ChangeRoleDialog'
 
 function UsersPage() {
   const { user } = useAuth()
-  const { showToast } = useAppOutletContext()
+  const { showToast, refreshAll } = useAppOutletContext()
 
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,6 +62,10 @@ function UsersPage() {
     setChangeTarget(null)
     showToast(`${changeTarget.fullName ?? changeTarget.email} is now ${role === 'admin' ? 'an' : 'a'} ${role.replace('_', ' ')}.`)
     void loadUsers()
+    // A role change writes a new activity_logs row (0018) -- refresh the
+    // shared org-data activity feed too, so Activity/Overview show it
+    // immediately instead of only after the next full app load.
+    void refreshAll()
   }
 
   if (loading) {

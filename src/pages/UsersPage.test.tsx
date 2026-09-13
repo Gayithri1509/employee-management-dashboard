@@ -40,7 +40,7 @@ beforeEach(() => {
   mockedFetchUsersForAdmin.mockReset()
   mockedSetUserRole.mockReset()
   mockedUseAuth.mockReturnValue({ user: { id: 'admin-1' } } as never)
-  mockedUseAppOutletContext.mockReturnValue({ showToast: vi.fn() } as never)
+  mockedUseAppOutletContext.mockReturnValue({ showToast: vi.fn(), refreshAll: vi.fn() } as never)
 })
 
 describe('UsersPage', () => {
@@ -84,11 +84,13 @@ describe('UsersPage', () => {
     expect(buttons[1]).toBeEnabled()
   })
 
-  it('changes a role end-to-end: confirm dialog -> setUserRole -> refreshes the list', async () => {
+  it('changes a role end-to-end: confirm dialog -> setUserRole -> refreshes the list and the shared activity feed', async () => {
     mockedFetchUsersForAdmin
       .mockResolvedValueOnce({ data: [currentAdmin, testEmployee], error: null })
       .mockResolvedValueOnce({ data: [currentAdmin, { ...testEmployee, role: 'hr_manager' }], error: null })
     mockedSetUserRole.mockResolvedValue({ error: null })
+    const refreshAll = vi.fn()
+    mockedUseAppOutletContext.mockReturnValue({ showToast: vi.fn(), refreshAll } as never)
     const user = userEvent.setup()
 
     render(<UsersPage />)
@@ -104,6 +106,7 @@ describe('UsersPage', () => {
     expect(mockedSetUserRole).toHaveBeenCalledWith('emp-1', 'hr_manager')
     expect(dialog).not.toBeInTheDocument()
     expect(mockedFetchUsersForAdmin).toHaveBeenCalledTimes(2)
+    expect(refreshAll).toHaveBeenCalledOnce()
   })
 
   it('shows a server-side rejection (e.g. last-admin protection) inside the dialog without closing it', async () => {
