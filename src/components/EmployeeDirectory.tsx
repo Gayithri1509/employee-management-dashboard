@@ -1,5 +1,6 @@
-import { RotateCcw, Users } from 'lucide-react'
+import { PlusCircle, RotateCcw, Users } from 'lucide-react'
 import type { Employee } from '../types/employee'
+import type { SortOption } from '../utils/employeeSort'
 import ControlsBar from './ControlsBar'
 import EmployeeGrid from './EmployeeGrid'
 import EmptyState from './EmptyState'
@@ -10,11 +11,21 @@ interface EmployeeDirectoryProps {
   searchTerm: string
   department: string
   status: string
+  sortBy: SortOption
   departments: string[]
+  canCreateEmployee: boolean
+  canEdit: boolean
+  canToggleStatus: boolean
+  canDelete: boolean
+  busyEmployeeId: string | null
   onSearchChange: (value: string) => void
   onDepartmentChange: (value: string) => void
   onStatusChange: (value: string) => void
+  onSortChange: (value: SortOption) => void
+  onAddEmployee: () => void
   onEditEmployee: (employee: Employee) => void
+  onToggleStatus: (employee: Employee) => void
+  onDeleteEmployee: (employee: Employee) => void
   hasActiveFilters: boolean
   onResetFilters: () => void
 }
@@ -25,11 +36,21 @@ function EmployeeDirectory({
   searchTerm,
   department,
   status,
+  sortBy,
   departments,
+  canCreateEmployee,
+  canEdit,
+  canToggleStatus,
+  canDelete,
+  busyEmployeeId,
   onSearchChange,
   onDepartmentChange,
   onStatusChange,
+  onSortChange,
+  onAddEmployee,
   onEditEmployee,
+  onToggleStatus,
+  onDeleteEmployee,
   hasActiveFilters,
   onResetFilters,
 }: EmployeeDirectoryProps) {
@@ -48,16 +69,28 @@ function EmployeeDirectory({
           </div>
         </div>
 
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Reset filters
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={onResetFilters}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Reset filters
+            </button>
+          )}
+          {canCreateEmployee && (
+            <button
+              type="button"
+              onClick={onAddEmployee}
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              Add Employee
+            </button>
+          )}
+        </div>
       </div>
 
       {totalCount === 0 ? (
@@ -76,14 +109,26 @@ function EmployeeDirectory({
               onSearchChange={onSearchChange}
               department={department}
               status={status}
+              sortBy={sortBy}
               onDepartmentChange={onDepartmentChange}
               onStatusChange={onStatusChange}
+              onSortChange={onSortChange}
               departments={departments}
             />
           </div>
 
           <div className="mt-5">
-            <EmployeeGrid employees={employees} onEditEmployee={onEditEmployee} onResetFilters={onResetFilters} />
+            <EmployeeGrid
+              employees={employees}
+              canEdit={canEdit}
+              canToggleStatus={canToggleStatus}
+              canDelete={canDelete}
+              busyEmployeeId={busyEmployeeId}
+              onEditEmployee={onEditEmployee}
+              onToggleStatus={onToggleStatus}
+              onDeleteEmployee={onDeleteEmployee}
+              onResetFilters={onResetFilters}
+            />
           </div>
         </>
       )}

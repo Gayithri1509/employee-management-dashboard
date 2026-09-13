@@ -2,6 +2,20 @@
 // components (card, spotlight). Kept here rather than duplicated, per the
 // project's convention of only extracting a utils module when there is a
 // real multi-consumer need.
+import type { UserRole } from '../types/database'
+
+const ROLE_LABELS: Record<UserRole, string> = {
+  admin: 'Admin',
+  hr_manager: 'HR Manager',
+  hr_staff: 'HR Staff',
+  employee: 'Employee',
+}
+
+/** Human-readable label for a profile role, e.g. 'hr_manager' -> 'HR Manager'. */
+export function formatRoleLabel(role: UserRole | null): string {
+  return role ? ROLE_LABELS[role] : 'Unknown role'
+}
+
 const MONTH_NAMES = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',

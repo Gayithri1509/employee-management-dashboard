@@ -1,11 +1,17 @@
-import { Building2, Calendar, Mail, MapPin, Pencil, Phone } from 'lucide-react'
+import { Building2, Calendar, Mail, MapPin, Pencil, Phone, Power, Trash2 } from 'lucide-react'
 import type { Employee } from '../types/employee'
 import StatusBadge from './StatusBadge'
 import { formatJoiningDate, getInitials } from '../utils/formatting'
 
 interface EmployeeCardProps {
   employee: Employee
+  canEdit: boolean
+  canToggleStatus: boolean
+  canDelete: boolean
+  isBusy: boolean
   onEdit: (employee: Employee) => void
+  onToggleStatus: (employee: Employee) => void
+  onDelete: (employee: Employee) => void
 }
 
 const AVATAR_PALETTE = [
@@ -22,7 +28,12 @@ function avatarColorFor(id: string): string {
   return AVATAR_PALETTE[sum % AVATAR_PALETTE.length]
 }
 
-function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
+const actionButtonClass =
+  'flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-transparent disabled:hover:text-slate-600'
+
+function EmployeeCard({ employee, canEdit, canToggleStatus, canDelete, isBusy, onEdit, onToggleStatus, onDelete }: EmployeeCardProps) {
+  const isActive = employee.status === 'Active'
+
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md motion-reduce:hover:translate-y-0">
       <div className="flex items-start gap-3">
@@ -45,7 +56,6 @@ function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
           <Building2 className="h-3 w-3" />
           {employee.department}
         </span>
-        <span className="text-[11px] text-slate-400">{employee.id}</span>
       </div>
 
       <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-500">
@@ -67,17 +77,47 @@ function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
         </p>
       </div>
 
-      <div className="mt-auto pt-3">
-        <button
-          type="button"
-          onClick={() => onEdit(employee)}
-          aria-label={`Edit ${employee.name}`}
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </button>
-      </div>
+      {(canEdit || canToggleStatus || canDelete) && (
+        <div className="mt-auto flex gap-2 pt-3">
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(employee)}
+              disabled={isBusy}
+              aria-label={`Edit ${employee.name}`}
+              className={actionButtonClass}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </button>
+          )}
+          {canToggleStatus && (
+            <button
+              type="button"
+              onClick={() => onToggleStatus(employee)}
+              disabled={isBusy}
+              aria-label={`${isActive ? 'Deactivate' : 'Reactivate'} ${employee.name}`}
+              title={isActive ? 'Deactivate' : 'Reactivate'}
+              className={actionButtonClass}
+            >
+              <Power className="h-3.5 w-3.5" />
+              {isActive ? 'Deactivate' : 'Reactivate'}
+            </button>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete(employee)}
+              disabled={isBusy}
+              aria-label={`Delete ${employee.name}`}
+              title="Delete"
+              className={`${actionButtonClass} flex-none px-2.5 hover:border-red-200 hover:bg-red-50 hover:text-red-600`}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

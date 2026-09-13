@@ -1,19 +1,27 @@
-import { Activity, Building2, LayoutDashboard, Settings, Sparkles, Users, X } from 'lucide-react'
-import { NAV_ITEMS, type SectionId } from '../../types/navigation'
+import { Activity, Building2, LayoutDashboard, LogOut, Sparkles, User, Users, X } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+import type { ComponentType } from 'react'
+import type { NavItem, RouteId } from '../../types/navigation'
+import { getInitials } from '../../utils/formatting'
 
-const NAV_ICONS: Record<SectionId, typeof LayoutDashboard> = {
+const NAV_ICONS: Record<RouteId, ComponentType<{ className?: string }>> = {
   overview: LayoutDashboard,
   employees: Users,
+  departments: Building2,
   activity: Activity,
   insights: Sparkles,
+  'my-profile': User,
 }
 
 interface SidebarContentProps {
-  activeSection: SectionId
-  onNavigate: (id: SectionId) => void
+  navItems: NavItem[]
+  displayName: string
+  roleLabel: string
+  onSignOut: () => void
+  onNavigate?: () => void
 }
 
-function SidebarContent({ activeSection, onNavigate }: SidebarContentProps) {
+function SidebarContent({ navItems, displayName, roleLabel, onSignOut, onNavigate }: SidebarContentProps) {
   return (
     <>
       <div className="flex items-center gap-2 px-5 py-6">
@@ -27,53 +35,46 @@ function SidebarContent({ activeSection, onNavigate }: SidebarContentProps) {
       </div>
 
       <nav className="flex-1 space-y-1 px-3">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const Icon = NAV_ICONS[item.id]
-          const isActive = activeSection === item.id
           return (
-            <button
+            <NavLink
               key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              aria-current={isActive ? 'page' : undefined}
-              className={`flex w-full items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm transition-colors duration-150 ${
-                isActive
-                  ? 'border-indigo-400 bg-white/5 font-medium text-white'
-                  : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-100'
-              }`}
+              to={item.path}
+              onClick={onNavigate}
+              className={({ isActive }) =>
+                `flex w-full items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm transition-colors duration-150 ${
+                  isActive
+                    ? 'border-indigo-400 bg-white/5 font-medium text-white'
+                    : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-100'
+                }`
+              }
             >
               <Icon className="h-4 w-4" />
               {item.label}
-            </button>
+            </NavLink>
           )
         })}
-
-        <button
-          type="button"
-          disabled
-          aria-disabled="true"
-          title="Settings is coming soon"
-          className="flex w-full cursor-not-allowed items-center justify-between rounded-lg border-l-2 border-transparent px-3 py-2.5 text-sm text-slate-600"
-        >
-          <span className="flex items-center gap-3">
-            <Settings className="h-4 w-4" />
-            Settings
-          </span>
-          <span className="rounded-full bg-white/5 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-slate-500">
-            Soon
-          </span>
-        </button>
       </nav>
 
       <div className="border-t border-white/5 px-5 py-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white">
-            HR
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white">
+            {getInitials(displayName) || '?'}
           </span>
-          <div>
-            <p className="text-xs font-medium text-white">HR Admin</p>
-            <p className="text-[11px] text-slate-400">Workspace admin</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-medium text-white">{displayName}</p>
+            <p className="text-[11px] text-slate-400">{roleLabel}</p>
           </div>
+          <button
+            type="button"
+            onClick={onSignOut}
+            aria-label="Sign out"
+            title="Sign out"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-white/5 hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </>
@@ -81,17 +82,19 @@ function SidebarContent({ activeSection, onNavigate }: SidebarContentProps) {
 }
 
 interface SidebarProps {
-  activeSection: SectionId
-  onNavigate: (id: SectionId) => void
+  navItems: NavItem[]
+  displayName: string
+  roleLabel: string
+  onSignOut: () => void
   isMobileOpen: boolean
   onCloseMobile: () => void
 }
 
-function Sidebar({ activeSection, onNavigate, isMobileOpen, onCloseMobile }: SidebarProps) {
+function Sidebar({ navItems, displayName, roleLabel, onSignOut, isMobileOpen, onCloseMobile }: SidebarProps) {
   return (
     <>
       <aside className="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:border-r lg:border-white/5 lg:bg-slate-900">
-        <SidebarContent activeSection={activeSection} onNavigate={onNavigate} />
+        <SidebarContent navItems={navItems} displayName={displayName} roleLabel={roleLabel} onSignOut={onSignOut} />
       </aside>
 
       {isMobileOpen && (
@@ -112,11 +115,11 @@ function Sidebar({ activeSection, onNavigate, isMobileOpen, onCloseMobile }: Sid
               <X className="h-4 w-4" />
             </button>
             <SidebarContent
-              activeSection={activeSection}
-              onNavigate={(id) => {
-                onNavigate(id)
-                onCloseMobile()
-              }}
+              navItems={navItems}
+              displayName={displayName}
+              roleLabel={roleLabel}
+              onSignOut={onSignOut}
+              onNavigate={onCloseMobile}
             />
           </aside>
         </div>

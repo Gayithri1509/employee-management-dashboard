@@ -1,23 +1,23 @@
-import { BrainCircuit, Compass, Sparkles } from 'lucide-react'
+import { ShieldCheck, History, Building2 } from 'lucide-react'
 
 const INSIGHTS = [
   {
-    icon: BrainCircuit,
-    title: 'How this was built',
+    icon: ShieldCheck,
+    title: 'Secure by design',
     body:
-      "This dashboard was built iteratively with AI-assisted development: each capability — search, filtering, editing, persistence, and the activity log — was scoped, implemented, and verified in isolation before the next was added, with production build checks and real browser testing at every step.",
+      'Access is enforced role by role -- Admin, HR Manager, HR Staff, and Employee each see and can change only what their role permits, backed by database-level authorization rather than the interface alone.',
   },
   {
-    icon: Compass,
-    title: 'Why these choices',
+    icon: Building2,
+    title: 'Always up to date',
     body:
-      'A single-page architecture with plain component state was chosen deliberately: the data set and interaction model are small enough that a router or a global state library would add complexity without adding capability. Client-side persistence keeps the experience fast and dependency-free while remaining easy to swap for a real backend later.',
+      'The directory, departments, and dashboards read live organizational data, so every teammate sees the same accurate picture the moment a change is made.',
   },
   {
-    icon: Sparkles,
-    title: 'What makes it unique',
+    icon: History,
+    title: 'Audit-ready history',
     body:
-      "Smart Activity is the differentiator: rather than logging raw field diffs, it compares an employee's previous and updated record and writes a single, human-readable sentence — tailored wording for role, department, and status changes, and one combined entry when several fields change together — so the history reads like a real HR changelog, not a debug trace.",
+      "Every employee change is recorded automatically in a human-readable timeline -- who changed what and when -- so your workforce history stays trustworthy without any manual logging.",
   },
 ]
 
@@ -26,7 +26,7 @@ function ProductInsights() {
     <div>
       <div className="mb-4">
         <h2 className="text-sm font-semibold text-slate-800">About EMS</h2>
-        <p className="text-xs text-slate-400">The thinking behind this product</p>
+        <p className="text-xs text-slate-400">What powers your workforce platform</p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {INSIGHTS.map((insight) => (

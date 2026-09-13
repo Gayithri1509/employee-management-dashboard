@@ -5,11 +5,27 @@ import EmptyState from './EmptyState'
 
 interface EmployeeGridProps {
   employees: Employee[]
+  canEdit: boolean
+  canToggleStatus: boolean
+  canDelete: boolean
+  busyEmployeeId: string | null
   onEditEmployee: (employee: Employee) => void
+  onToggleStatus: (employee: Employee) => void
+  onDeleteEmployee: (employee: Employee) => void
   onResetFilters: () => void
 }
 
-function EmployeeGrid({ employees, onEditEmployee, onResetFilters }: EmployeeGridProps) {
+function EmployeeGrid({
+  employees,
+  canEdit,
+  canToggleStatus,
+  canDelete,
+  busyEmployeeId,
+  onEditEmployee,
+  onToggleStatus,
+  onDeleteEmployee,
+  onResetFilters,
+}: EmployeeGridProps) {
   if (employees.length === 0) {
     return (
       <EmptyState
@@ -30,7 +46,16 @@ function EmployeeGrid({ employees, onEditEmployee, onResetFilters }: EmployeeGri
           className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
           style={{ animationDelay: `${Math.min(index, 8) * 30}ms` }}
         >
-          <EmployeeCard employee={employee} onEdit={onEditEmployee} />
+          <EmployeeCard
+            employee={employee}
+            canEdit={canEdit}
+            canToggleStatus={canToggleStatus}
+            canDelete={canDelete}
+            isBusy={busyEmployeeId === employee.id}
+            onEdit={onEditEmployee}
+            onToggleStatus={onToggleStatus}
+            onDelete={onDeleteEmployee}
+          />
         </div>
       ))}
     </div>

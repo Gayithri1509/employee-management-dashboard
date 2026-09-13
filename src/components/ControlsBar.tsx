@@ -1,13 +1,16 @@
 import SearchBar from './SearchBar'
 import FilterControls from './FilterControls'
+import type { SortOption } from '../utils/employeeSort'
 
 interface ControlsBarProps {
   searchTerm: string
   onSearchChange: (value: string) => void
   department: string
   status: string
+  sortBy: SortOption
   onDepartmentChange: (value: string) => void
   onStatusChange: (value: string) => void
+  onSortChange: (value: SortOption) => void
   departments: string[]
 }
 
@@ -16,8 +19,10 @@ function ControlsBar({
   onSearchChange,
   department,
   status,
+  sortBy,
   onDepartmentChange,
   onStatusChange,
+  onSortChange,
   departments,
 }: ControlsBarProps) {
   return (
@@ -26,8 +31,10 @@ function ControlsBar({
       <FilterControls
         department={department}
         status={status}
+        sortBy={sortBy}
         onDepartmentChange={onDepartmentChange}
         onStatusChange={onStatusChange}
+        onSortChange={onSortChange}
         departments={departments}
       />
     </div>

@@ -33,6 +33,7 @@ export interface Database {
           name?: string
           created_at?: string
         }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -56,6 +57,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       employees: {
         Row: {
@@ -106,6 +108,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       activity_logs: {
         Row: {
@@ -135,10 +138,69 @@ export interface Database {
           metadata?: Json | null
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    // Phase 2: the SECURITY DEFINER RPCs from
+    // supabase/migrations/0013_employee_mutation_rpcs.sql -- the only
+    // client-facing way to mutate public.employees (see that migration's
+    // header for why: RLS alone can't express "hr_staff may edit phone but
+    // not department").
+    Functions: {
+      create_employee: {
+        Args: {
+          p_name: string
+          p_role: string
+          p_department_id: string
+          p_email: string
+          p_phone: string | null
+          p_location: string | null
+          p_joining_date: string
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      update_employee: {
+        Args: {
+          p_id: string
+          p_name: string
+          p_role: string
+          p_department_id: string
+          p_email: string
+          p_phone: string | null
+          p_location: string | null
+          p_joining_date: string
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      set_employee_status: {
+        Args: {
+          p_id: string
+          p_status: EmployeeStatusRow
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      delete_employee: {
+        Args: {
+          p_id: string
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      update_employee_self: {
+        Args: {
+          p_phone: string | null
+          p_location: string | null
+        }
+        Returns: Database['public']['Tables']['employees']['Row']
+      }
+      reassign_department_employees: {
+        Args: {
+          p_from_department_id: string
+          p_to_department_id: string
+        }
+        Returns: number
+      }
+    }
     Enums: {
       user_role: UserRole
       employee_status: EmployeeStatusRow
