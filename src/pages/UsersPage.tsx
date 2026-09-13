@@ -79,7 +79,6 @@ function UsersPage() {
   return (
     <div className="scroll-mt-20 space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-slate-900">User &amp; Access</h1>
         <p className="text-sm text-slate-500">Manage who has access and what role each person has.</p>
       </div>
 

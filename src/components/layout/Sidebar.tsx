@@ -45,15 +45,19 @@ function SidebarContent({ navItems, displayName, roleLabel, onSignOut, onNavigat
               to={item.path}
               onClick={onNavigate}
               className={({ isActive }) =>
-                `flex w-full items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm transition-colors duration-150 ${
+                `group flex w-full items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm transition-colors duration-150 ${
                   isActive
                     ? 'border-indigo-400 bg-white/5 font-medium text-white'
                     : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-100'
                 }`
               }
             >
-              <Icon className="h-4 w-4" />
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-indigo-300' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                  {item.label}
+                </>
+              )}
             </NavLink>
           )
         })}

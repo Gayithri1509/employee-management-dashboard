@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Mail, MapPin, Phone, Calendar, Building2, Briefcase, UserX } from 'lucide-react'
+import { Mail, MapPin, Phone, Calendar, Building2, Clock, UserX } from 'lucide-react'
 import { useAppOutletContext } from '../layouts/appOutletContext'
 import { updateEmployeeSelf } from '../services/supabase/employees'
-import { formatJoiningDate, getInitials } from '../utils/formatting'
+import { formatJoiningDate, formatTenure, getInitials } from '../utils/formatting'
 import StatusBadge from '../components/StatusBadge'
 import LoadingState from '../components/LoadingState'
 import ErrorState from '../components/ErrorState'
@@ -71,123 +71,130 @@ function MyProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl scroll-mt-20 space-y-6">
+    <div className="mx-auto max-w-2xl scroll-mt-20 space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-slate-900">My Profile</h1>
         <p className="text-sm text-slate-500">Your personal employee information.</p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700">
-            {getInitials(myEmployee.name)}
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-base font-semibold text-slate-800">{myEmployee.name}</h2>
-              <StatusBadge status={myEmployee.status} />
+      <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+        <div className="relative bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-6 py-8 text-white">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl"
+          />
+          <div className="relative flex items-center gap-4">
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/10 text-xl font-semibold text-white ring-1 ring-white/20">
+              {getInitials(myEmployee.name)}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="truncate text-lg font-semibold text-white">{myEmployee.name}</h2>
+                <StatusBadge status={myEmployee.status} />
+              </div>
+              <p className="truncate text-sm text-slate-300">{myEmployee.role}</p>
             </div>
-            <p className="truncate text-sm text-slate-500">{myEmployee.role}</p>
           </div>
         </div>
 
-        <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Building2 className="h-4 w-4 shrink-0 text-slate-400" />
-            {myEmployee.department}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Calendar className="h-4 w-4 shrink-0 text-slate-400" />
-            Joined {formatJoiningDate(myEmployee.joiningDate)}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Mail className="h-4 w-4 shrink-0 text-slate-400" />
-            {myEmployee.email}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Briefcase className="h-4 w-4 shrink-0 text-slate-400" />
-            {myEmployee.role}
-          </div>
-        </dl>
+        <div className="p-6">
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Building2 className="h-4 w-4 shrink-0 text-slate-400" />
+              {myEmployee.department}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Mail className="h-4 w-4 shrink-0 text-slate-400" />
+              <span className="truncate">{myEmployee.email}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Calendar className="h-4 w-4 shrink-0 text-slate-400" />
+              Joined {formatJoiningDate(myEmployee.joiningDate)}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Clock className="h-4 w-4 shrink-0 text-slate-400" />
+              {formatTenure(myEmployee.joiningDate)} tenure
+            </div>
+          </dl>
 
-        <div className="mt-6 border-t border-slate-100 pt-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-indigo-500">Personal contact</h3>
-            {!editing && (
-              <button
-                type="button"
-                onClick={startEditing}
-                className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                Edit
-              </button>
+          <div className="mt-6 border-t border-slate-100 pt-5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-indigo-500">Personal contact</h3>
+              {!editing && (
+                <button
+                  type="button"
+                  onClick={startEditing}
+                  className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+
+            {editing ? (
+              <div className="mt-3 space-y-3">
+                {error && (
+                  <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+                    {error}
+                  </p>
+                )}
+                <div>
+                  <label htmlFor="self-phone" className="mb-1 block text-xs font-medium text-slate-600">
+                    Phone
+                  </label>
+                  <input
+                    id="self-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    disabled={submitting}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="self-location" className="mb-1 block text-xs font-medium text-slate-600">
+                    Location
+                  </label>
+                  <input
+                    id="self-location"
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    disabled={submitting}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(false)}
+                    disabled={submitting}
+                    className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleSave()}
+                    disabled={submitting}
+                    className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {submitting ? 'Saving…' : 'Save'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <Phone className="h-4 w-4 shrink-0 text-slate-400" />
+                  {myEmployee.phone || <span className="text-slate-400">Not set</span>}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
+                  {myEmployee.location || <span className="text-slate-400">Not set</span>}
+                </div>
+              </dl>
             )}
           </div>
-
-          {editing ? (
-            <div className="mt-3 space-y-3">
-              {error && (
-                <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
-                  {error}
-                </p>
-              )}
-              <div>
-                <label htmlFor="self-phone" className="mb-1 block text-xs font-medium text-slate-600">
-                  Phone
-                </label>
-                <input
-                  id="self-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  disabled={submitting}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-50"
-                />
-              </div>
-              <div>
-                <label htmlFor="self-location" className="mb-1 block text-xs font-medium text-slate-600">
-                  Location
-                </label>
-                <input
-                  id="self-location"
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  disabled={submitting}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-50"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setEditing(false)}
-                  disabled={submitting}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handleSave()}
-                  disabled={submitting}
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {submitting ? 'Saving…' : 'Save'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Phone className="h-4 w-4 shrink-0 text-slate-400" />
-                {myEmployee.phone || <span className="text-slate-400">Not set</span>}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
-                {myEmployee.location || <span className="text-slate-400">Not set</span>}
-              </div>
-            </dl>
-          )}
         </div>
       </div>
     </div>

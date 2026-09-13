@@ -70,7 +70,7 @@ describe('App routing + RBAC (direct URL access)', () => {
 
     render(<App />)
 
-    expect(await screen.findByRole('heading', { name: /Monitor your organization/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /people across/i })).toBeInTheDocument()
   })
 
   it('blocks hr_staff from /departments via direct URL, even though the route exists for admins', async () => {

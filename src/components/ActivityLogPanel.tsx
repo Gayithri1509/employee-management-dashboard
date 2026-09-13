@@ -7,7 +7,48 @@ interface ActivityLogPanelProps {
   entries: ActivityEntry[]
 }
 
+function isSameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+function dayLabel(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp)
+  if (Number.isNaN(date.getTime())) return 'Earlier'
+
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(today.getDate() - 1)
+
+  if (isSameDay(date, today)) return 'Today'
+  if (isSameDay(date, yesterday)) return 'Yesterday'
+  return date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+interface EntryGroup {
+  label: string
+  entries: ActivityEntry[]
+}
+
+/** Groups already-newest-first entries by calendar day, preserving order -- a pure presentation grouping, never a re-derivation of the underlying audit data. */
+function groupByDay(entries: ActivityEntry[]): EntryGroup[] {
+  const groups: EntryGroup[] = []
+
+  for (const entry of entries) {
+    const label = dayLabel(entry.timestamp)
+    const currentGroup = groups[groups.length - 1]
+    if (currentGroup && currentGroup.label === label) {
+      currentGroup.entries.push(entry)
+    } else {
+      groups.push({ label, entries: [entry] })
+    }
+  }
+
+  return groups
+}
+
 function ActivityLogPanel({ entries }: ActivityLogPanelProps) {
+  const groups = groupByDay(entries)
+
   return (
     <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2">
@@ -28,11 +69,18 @@ function ActivityLogPanel({ entries }: ActivityLogPanelProps) {
             description="Updates to your team will appear here automatically."
           />
         ) : (
-          <ul>
-            {entries.map((entry, index) => (
-              <ActivityLogEntry key={entry.id} entry={entry} isLast={index === entries.length - 1} />
+          <div className="space-y-6">
+            {groups.map((group) => (
+              <div key={group.label}>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">{group.label}</p>
+                <ul>
+                  {group.entries.map((entry, index) => (
+                    <ActivityLogEntry key={entry.id} entry={entry} isLast={index === group.entries.length - 1} />
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

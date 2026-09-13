@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-type KpiAccent = 'indigo' | 'emerald' | 'amber' | 'slate'
+type KpiAccent = 'indigo' | 'emerald' | 'amber' | 'slate' | 'rose' | 'sky'
 
 interface KpiCardProps {
   label: string
@@ -15,6 +15,8 @@ const ACCENT_STYLES: Record<KpiAccent, { wrap: string; icon: string }> = {
   emerald: { wrap: 'bg-emerald-50', icon: 'text-emerald-600' },
   amber: { wrap: 'bg-amber-50', icon: 'text-amber-600' },
   slate: { wrap: 'bg-slate-100', icon: 'text-slate-600' },
+  rose: { wrap: 'bg-rose-50', icon: 'text-rose-600' },
+  sky: { wrap: 'bg-sky-50', icon: 'text-sky-600' },
 }
 
 function KpiCard({ label, value, helperText, icon: Icon, accent }: KpiCardProps) {

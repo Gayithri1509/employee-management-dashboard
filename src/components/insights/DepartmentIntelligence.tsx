@@ -1,6 +1,7 @@
-interface DepartmentBreakdownItem {
+export interface DepartmentBreakdownItem {
   department: string
   count: number
+  activeCount: number
 }
 
 interface DepartmentIntelligenceProps {
@@ -12,17 +13,18 @@ function DepartmentIntelligence({ breakdown, total }: DepartmentIntelligenceProp
   const maxCount = Math.max(...breakdown.map((item) => item.count), 1)
 
   return (
-    <div className="h-full rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md">
       <h3 className="text-sm font-semibold text-slate-800">Department Intelligence</h3>
-      <p className="mt-0.5 text-xs text-slate-400">Headcount distribution across {breakdown.length} departments</p>
+      <p className="mt-0.5 text-xs text-slate-400">Headcount across {breakdown.length} departments</p>
 
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-4 flex-1 space-y-3 overflow-y-auto pr-1">
         {breakdown.map((item) => (
           <li key={item.department}>
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-slate-700">{item.department}</span>
-              <span className="text-slate-400">
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="truncate font-medium text-slate-700">{item.department}</span>
+              <span className="shrink-0 whitespace-nowrap text-slate-400">
                 {item.count} {item.count === 1 ? 'person' : 'people'}
+                {item.activeCount < item.count && <span className="text-slate-300"> &middot; {item.activeCount} active</span>}
               </span>
             </div>
             <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">

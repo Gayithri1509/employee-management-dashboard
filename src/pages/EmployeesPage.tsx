@@ -15,7 +15,7 @@ import EmployeeDirectory from '../components/EmployeeDirectory'
 import EmployeeFormModal, { type EmployeeFormValues } from '../components/EmployeeFormModal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import LinkEmployeeDialog from '../components/LinkEmployeeDialog'
-import LoadingState from '../components/LoadingState'
+import EmployeeGridSkeleton from '../components/EmployeeGridSkeleton'
 import ErrorState from '../components/ErrorState'
 
 type ConfirmActionType = 'deactivate' | 'reactivate' | 'delete' | 'unlink'
@@ -230,7 +230,7 @@ function EmployeesPage() {
   }
 
   if (loading) {
-    return <LoadingState message="Loading employees…" />
+    return <EmployeeGridSkeleton />
   }
 
   if (employeesError) {

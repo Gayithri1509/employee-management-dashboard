@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Bell, Menu, Search } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getInitials } from '../../utils/formatting'
 
 interface TopHeaderProps {
@@ -10,16 +10,24 @@ interface TopHeaderProps {
   activityCount: number
 }
 
-function getGreeting(): string {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 18) return 'Good afternoon'
-  return 'Good evening'
+const PAGE_TITLES: Record<string, string> = {
+  '/dashboard': 'Overview',
+  '/employees': 'Employees',
+  '/departments': 'Departments',
+  '/activity': 'Activity',
+  '/insights': 'Insights',
+  '/my-profile': 'My Profile',
+  '/settings': 'Settings',
+  '/users': 'User & Access',
 }
+
+const TODAY_LABEL = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
 
 function TopHeader({ onOpenMobileNav, displayName, showOrgControls, activityCount }: TopHeaderProps) {
   const [quickSearch, setQuickSearch] = useState('')
   const navigate = useNavigate()
+  const location = useLocation()
+  const pageTitle = PAGE_TITLES[location.pathname] ?? 'Dashboard'
 
   function handleQuickSearchSubmit(event: FormEvent) {
     event.preventDefault()
@@ -40,10 +48,8 @@ function TopHeader({ onOpenMobileNav, displayName, showOrgControls, activityCoun
         </button>
 
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wide text-indigo-500">
-            {getGreeting()}{displayName ? `, ${displayName.split(' ')[0]}` : ''}
-          </p>
-          <h1 className="truncate text-lg font-semibold text-slate-900">Workforce overview</h1>
+          <p className="hidden text-xs font-medium uppercase tracking-wide text-indigo-500 sm:block">{TODAY_LABEL}</p>
+          <h1 className="truncate text-lg font-semibold text-slate-900">{pageTitle}</h1>
         </div>
 
         <div className="ml-auto flex items-center gap-3">
@@ -68,7 +74,7 @@ function TopHeader({ onOpenMobileNav, displayName, showOrgControls, activityCoun
                 type="button"
                 onClick={() => navigate('/activity')}
                 title={activityCount > 0 ? `${activityCount} recent activity entries` : 'No recent activity'}
-                className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50"
+                className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50"
               >
                 <Bell className="h-4 w-4" />
                 {activityCount > 0 && (

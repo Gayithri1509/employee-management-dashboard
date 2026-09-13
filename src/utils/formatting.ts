@@ -34,6 +34,26 @@ export function formatDateTime(isoTimestamp: string): string {
   return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
 }
 
+/** Real, computed tenure from a joining date to now -- e.g. "3 yr 2 mo", "5 mo", "New this month". Never a fabricated/estimated figure. */
+export function formatTenure(isoJoiningDate: string): string {
+  const joined = new Date(isoJoiningDate)
+  if (Number.isNaN(joined.getTime())) return ''
+
+  const now = new Date()
+  let months = (now.getFullYear() - joined.getFullYear()) * 12 + (now.getMonth() - joined.getMonth())
+  if (now.getDate() < joined.getDate()) months -= 1
+  months = Math.max(months, 0)
+
+  if (months < 1) return 'New this month'
+
+  const years = Math.floor(months / 12)
+  const remainingMonths = months % 12
+
+  if (years === 0) return `${remainingMonths} mo`
+  if (remainingMonths === 0) return `${years} yr`
+  return `${years} yr ${remainingMonths} mo`
+}
+
 export function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return ''

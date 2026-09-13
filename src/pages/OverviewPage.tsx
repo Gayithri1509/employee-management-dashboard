@@ -1,22 +1,30 @@
 import { useNavigate } from 'react-router-dom'
-import { Building2, CalendarClock, UserCheck, Users } from 'lucide-react'
+import { Building2, CalendarClock, History, UserCheck, UserPlus, Users, UserX } from 'lucide-react'
 import type { Employee } from '../types/employee'
+import { useAuth } from '../contexts/AuthContext'
 import { useAppOutletContext } from '../layouts/appOutletContext'
 import KpiCard from '../components/kpi/KpiCard'
 import WorkforcePulse from '../components/insights/WorkforcePulse'
 import DepartmentIntelligence from '../components/insights/DepartmentIntelligence'
 import EmployeeSpotlight from '../components/EmployeeSpotlight'
 import QuickActions from '../components/QuickActions'
-import LoadingState from '../components/LoadingState'
+import ActivityLogEntry from '../components/ActivityLogEntry'
+import EmptyState from '../components/EmptyState'
+import OverviewSkeleton from '../components/OverviewSkeleton'
 import ErrorState from '../components/ErrorState'
 
+const NEW_JOINER_WINDOW_DAYS = 30
+const MS_PER_DAY = 1000 * 60 * 60 * 24
+const RECENT_ACTIVITY_LIMIT = 5
+
 function OverviewPage() {
-  const { employees, departments, loading, employeesError, departmentsError, retryAll, capabilities } =
+  const { employees, departments, activityEntries, loading, employeesError, departmentsError, retryAll, capabilities } =
     useAppOutletContext()
+  const { profile, user } = useAuth()
   const navigate = useNavigate()
 
   if (loading) {
-    return <LoadingState message="Loading employees, departments, and activity from Supabase…" />
+    return <OverviewSkeleton />
   }
 
   if (employeesError || departmentsError) {
@@ -32,15 +40,27 @@ function OverviewPage() {
     )
   }
 
+  const displayName = profile?.full_name?.trim() || user?.email || ''
+  const firstName = displayName.split(' ')[0]
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+
   const activeCount = employees.filter((employee) => employee.status === 'Active').length
   const onLeaveCount = employees.filter((employee) => employee.status === 'On Leave').length
   const inactiveCount = employees.filter((employee) => employee.status === 'Inactive').length
   const departmentCount = departments.length
 
+  const newJoinerCount = employees.filter((employee) => {
+    const joined = new Date(employee.joiningDate)
+    if (Number.isNaN(joined.getTime())) return false
+    return (Date.now() - joined.getTime()) / MS_PER_DAY <= NEW_JOINER_WINDOW_DAYS
+  }).length
+
   const departmentBreakdown = departments
     .map((dept) => ({
       department: dept.name,
       count: employees.filter((employee) => employee.department === dept.name).length,
+      activeCount: employees.filter((employee) => employee.department === dept.name && employee.status === 'Active').length,
     }))
     .sort((a, b) => b.count - a.count)
 
@@ -52,6 +72,8 @@ function OverviewPage() {
     undefined,
   )
 
+  const recentActivity = activityEntries.slice(0, RECENT_ACTIVITY_LIMIT)
+
   return (
     <div className="scroll-mt-20 space-y-6">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-6 py-8 text-white shadow-sm sm:px-8">
@@ -59,13 +81,18 @@ function OverviewPage() {
           aria-hidden="true"
           className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl"
         />
-        <p className="text-xs font-medium uppercase tracking-wide text-indigo-300">Workforce Overview</p>
+        <p className="relative text-xs font-medium uppercase tracking-wide text-indigo-300">
+          {greeting}{firstName ? `, ${firstName}` : ''}
+        </p>
         <h2 className="relative mt-1 max-w-xl text-2xl font-semibold sm:text-3xl">
-          Monitor your organization, people, and activity from one place.
+          {employees.length} people across {departmentCount} {departmentCount === 1 ? 'department' : 'departments'}
+          {onLeaveCount > 0 || inactiveCount > 0
+            ? ` — ${activeCount} active, ${onLeaveCount + inactiveCount} need attention.`
+            : ' — everyone is active.'}
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard
           label="Total Employees"
           value={employees.length}
@@ -81,12 +108,20 @@ function OverviewPage() {
           accent="emerald"
         />
         <KpiCard label="On Leave" value={onLeaveCount} helperText="Temporarily away" icon={CalendarClock} accent="amber" />
+        <KpiCard label="Inactive" value={inactiveCount} helperText="No longer active" icon={UserX} accent="rose" />
         <KpiCard
           label="Departments"
           value={departmentCount}
           helperText="Represented in your team"
           icon={Building2}
           accent="slate"
+        />
+        <KpiCard
+          label="New Joiners"
+          value={newJoinerCount}
+          helperText={`In the last ${NEW_JOINER_WINDOW_DAYS} days`}
+          icon={UserPlus}
+          accent="sky"
         />
       </div>
 
@@ -96,12 +131,54 @@ function OverviewPage() {
         {spotlightEmployee && <EmployeeSpotlight employee={spotlightEmployee} />}
       </div>
 
-      <QuickActions
-        canCreateEmployee={capabilities.canCreateEmployee}
-        onAddEmployee={() => navigate('/employees?add=1')}
-        onViewEmployees={() => navigate('/employees')}
-        onViewActivity={() => navigate('/activity')}
-      />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm lg:col-span-2">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <History className="h-4 w-4" />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-slate-800">Recent Activity</h3>
+                <p className="text-xs text-slate-400">Latest changes across your workforce</p>
+              </div>
+            </div>
+            {capabilities.canViewActivity && recentActivity.length > 0 && (
+              <button
+                type="button"
+                onClick={() => navigate('/activity')}
+                className="shrink-0 text-xs font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                View all
+              </button>
+            )}
+          </div>
+
+          <div className="mt-4">
+            {recentActivity.length === 0 ? (
+              <EmptyState icon={History} title="No activity yet" description="Updates to your team will appear here automatically." />
+            ) : (
+              <ul>
+                {recentActivity.map((entry, index) => (
+                  <ActivityLogEntry key={entry.id} entry={entry} isLast={index === recentActivity.length - 1} />
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        <QuickActions
+          canCreateEmployee={capabilities.canCreateEmployee}
+          canManageDepartments={capabilities.canManageDepartments}
+          canManageRoles={capabilities.canManageRoles}
+          onAddEmployee={() => navigate('/employees?add=1')}
+          onViewEmployees={() => navigate('/employees')}
+          onViewDepartments={() => navigate('/departments')}
+          onViewUsers={() => navigate('/users')}
+          onViewActivity={() => navigate('/activity')}
+          onViewInsights={() => navigate('/insights')}
+        />
+      </div>
     </div>
   )
 }

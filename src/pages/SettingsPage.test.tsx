@@ -43,8 +43,8 @@ describe('SettingsPage', () => {
     render(<SettingsPage />)
 
     expect(screen.getByLabelText('Full name')).toHaveValue('Priya Nair')
-    expect(screen.getByText('admin@example.com')).toBeInTheDocument()
-    expect(screen.getByText('Admin')).toBeInTheDocument()
+    expect(screen.getAllByText('admin@example.com').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Admin').length).toBeGreaterThan(0)
   })
 
   it('falls back to displaying the auth email when full_name is missing', () => {

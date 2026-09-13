@@ -13,6 +13,25 @@ import DepartmentReassignDialog from '../components/DepartmentReassignDialog'
 type FormModalState = { mode: 'create' } | { mode: 'edit'; department: DepartmentRow }
 type DeleteFlowState = { department: DepartmentRow; employeeCount: number }
 
+/** A compact active/on-leave/inactive proportion bar -- same status colors as everywhere else in the product (StatusBadge, StatusDonut), just at a glance. */
+function StatusMiniBar({ active, onLeave, inactive }: { active: number; onLeave: number; inactive: number }) {
+  const total = active + onLeave + inactive
+  if (total === 0) {
+    return <span className="text-xs text-slate-300">No employees</span>
+  }
+  return (
+    <div
+      className="flex h-1.5 w-24 overflow-hidden rounded-full bg-slate-100"
+      role="img"
+      aria-label={`${active} active, ${onLeave} on leave, ${inactive} inactive`}
+    >
+      <div className="h-full bg-emerald-500" style={{ width: `${(active / total) * 100}%` }} />
+      <div className="h-full bg-amber-500" style={{ width: `${(onLeave / total) * 100}%` }} />
+      <div className="h-full bg-slate-400" style={{ width: `${(inactive / total) * 100}%` }} />
+    </div>
+  )
+}
+
 function DepartmentsPage() {
   const { employees, departments, loading, departmentsError, retryAll, refreshAll, showToast } = useAppOutletContext()
 
@@ -27,6 +46,17 @@ function DepartmentsPage() {
     const counts: Record<string, number> = {}
     for (const employee of employees) {
       counts[employee.department] = (counts[employee.department] ?? 0) + 1
+    }
+    return counts
+  }, [employees])
+
+  const statusCountsByName = useMemo(() => {
+    const counts: Record<string, { active: number; onLeave: number; inactive: number }> = {}
+    for (const employee of employees) {
+      const bucket = (counts[employee.department] ??= { active: 0, onLeave: 0, inactive: 0 })
+      if (employee.status === 'Active') bucket.active += 1
+      else if (employee.status === 'On Leave') bucket.onLeave += 1
+      else bucket.inactive += 1
     }
     return counts
   }, [employees])
@@ -119,7 +149,6 @@ function DepartmentsPage() {
     <div className="scroll-mt-20 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Departments</h1>
           <p className="text-sm text-slate-500">Organize your workforce into departments.</p>
         </div>
         <button
@@ -136,19 +165,25 @@ function DepartmentsPage() {
         <EmptyState icon={Building2} title="No departments yet" description="Add a department to get started." />
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-          <table className="w-full min-w-[480px] text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-100 bg-slate-50/60 text-xs uppercase tracking-wide text-slate-400">
               <tr>
                 <th className="px-5 py-3 font-medium">Department</th>
                 <th className="px-5 py-3 font-medium">Employees</th>
+                <th className="px-5 py-3 font-medium">Status mix</th>
                 <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {departments.map((department) => (
+              {departments.map((department) => {
+                const statusCounts = statusCountsByName[department.name] ?? { active: 0, onLeave: 0, inactive: 0 }
+                return (
                 <tr key={department.id} className="transition-colors hover:bg-slate-50/60">
                   <td className="px-5 py-3 font-medium text-slate-800">{department.name}</td>
                   <td className="px-5 py-3 text-slate-500">{employeeCountByName[department.name] ?? 0}</td>
+                  <td className="px-5 py-3">
+                    <StatusMiniBar active={statusCounts.active} onLeave={statusCounts.onLeave} inactive={statusCounts.inactive} />
+                  </td>
                   <td className="px-5 py-3">
                     <div className="flex justify-end gap-2">
                       <button
@@ -172,7 +207,8 @@ function DepartmentsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
