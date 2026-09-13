@@ -1,3 +1,4 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Dashboard from './pages/Dashboard'
 import SignIn from './pages/SignIn'
@@ -23,11 +24,19 @@ function AuthGate() {
   return <Dashboard />
 }
 
+// Stage 3.3 routing groundwork: a single catch-all route today, preserving
+// the existing single-page/anchor-scroll behavior unchanged. Introduced now
+// so role-specific pages (RBAC nav, Settings, self-service) can be added as
+// their own <Route> entries later without a second restructuring.
 function App() {
   return (
-    <AuthProvider>
-      <AuthGate />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/*" element={<AuthGate />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
