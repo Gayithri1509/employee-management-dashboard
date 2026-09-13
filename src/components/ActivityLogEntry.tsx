@@ -1,4 +1,4 @@
-import { ShieldCheck, Sparkles, UserCog } from 'lucide-react'
+import { Megaphone, ShieldCheck, Sparkles, UserCog } from 'lucide-react'
 import type { ActivityEntry } from '../types/activity'
 
 interface ActivityLogEntryProps {
@@ -7,9 +7,25 @@ interface ActivityLogEntryProps {
 }
 
 const TYPE_META: Record<ActivityEntry['type'], { label: string; icon: typeof Sparkles; wrap: string; icon_color: string }> = {
-  system: { label: 'System', icon: Sparkles, wrap: 'bg-slate-100', icon_color: 'text-slate-500' },
-  'employee-update': { label: 'Update', icon: UserCog, wrap: 'bg-indigo-50', icon_color: 'text-indigo-600' },
-  'role-change': { label: 'Role Change', icon: ShieldCheck, wrap: 'bg-violet-50', icon_color: 'text-violet-600' },
+  system: { label: 'System', icon: Sparkles, wrap: 'bg-slate-100 ring-1 ring-slate-200', icon_color: 'text-slate-500' },
+  'employee-update': {
+    label: 'Update',
+    icon: UserCog,
+    wrap: 'bg-gradient-to-br from-indigo-50 to-indigo-100/70 ring-1 ring-indigo-100',
+    icon_color: 'text-indigo-600',
+  },
+  'role-change': {
+    label: 'Role Change',
+    icon: ShieldCheck,
+    wrap: 'bg-gradient-to-br from-violet-50 to-violet-100/70 ring-1 ring-violet-100',
+    icon_color: 'text-violet-600',
+  },
+  announcement: {
+    label: 'Announcement',
+    icon: Megaphone,
+    wrap: 'bg-gradient-to-br from-sky-50 to-sky-100/70 ring-1 ring-sky-100',
+    icon_color: 'text-sky-600',
+  },
 }
 
 function formatTimestamp(isoTimestamp: string): string {

@@ -13,13 +13,13 @@ function DepartmentIntelligence({ breakdown, total }: DepartmentIntelligenceProp
   const maxCount = Math.max(...breakdown.map((item) => item.count), 1)
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-md ring-1 ring-slate-900/[0.04] transition-shadow duration-200 hover:shadow-lg">
-      <h3 className="text-sm font-semibold text-slate-800">Department Intelligence</h3>
+    <div className="surface-elevated flex h-full flex-col p-6">
+      <h3 className="text-[15px] font-semibold text-slate-800">Department Intelligence</h3>
       <p className="mt-0.5 text-xs text-slate-400">Headcount across {breakdown.length} departments</p>
 
       <ul className="mt-4 flex-1 space-y-3 overflow-y-auto pr-1">
         {breakdown.map((item) => (
-          <li key={item.department}>
+          <li key={item.department} className="group rounded-lg px-1 py-0.5 transition-colors hover:bg-slate-50">
             <div className="flex items-center justify-between gap-2 text-xs">
               <span className="truncate font-medium text-slate-700">{item.department}</span>
               <span className="shrink-0 whitespace-nowrap text-slate-400">
@@ -27,9 +27,9 @@ function DepartmentIntelligence({ breakdown, total }: DepartmentIntelligenceProp
                 {item.activeCount < item.count && <span className="text-slate-300"> &middot; {item.activeCount} active</span>}
               </span>
             </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-indigo-500 transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500 ease-out"
                 style={{ width: `${(item.count / maxCount) * 100}%` }}
               />
             </div>

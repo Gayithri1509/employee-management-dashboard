@@ -54,24 +54,24 @@ function SettingsPage() {
         <p className="text-sm text-slate-500">Manage your account and session.</p>
       </div>
 
-      <div className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+      <div className="surface-elevated flex items-center gap-4 p-5">
+        <span className="brand-wash flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white shadow-[0_4px_12px_-2px_rgba(79,70,229,0.4)]">
           {getInitials(displayName) || '?'}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-800">{displayName || 'Your account'}</p>
+          <p className="truncate text-[15px] font-semibold text-slate-800">{displayName || 'Your account'}</p>
           <p className="truncate text-xs text-slate-400">{user?.email}</p>
         </div>
         {role && <RoleBadge role={role} />}
       </div>
 
-      <section className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+      <section className="surface p-6">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/70 text-indigo-600 ring-1 ring-indigo-100">
             <User className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Account &amp; Profile</h2>
+            <h2 className="text-[15px] font-semibold text-slate-800">Account &amp; Profile</h2>
             <p className="text-xs text-slate-400">Your display name is shown throughout the app</p>
           </div>
         </div>
@@ -128,13 +128,13 @@ function SettingsPage() {
         </form>
       </section>
 
-      <section className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+      <section className="surface p-6">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/70 text-indigo-600 ring-1 ring-indigo-100">
             <Shield className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Security &amp; Session</h2>
+            <h2 className="text-[15px] font-semibold text-slate-800">Security &amp; Session</h2>
             <p className="text-xs text-slate-400">Manage your active session on this device</p>
           </div>
         </div>

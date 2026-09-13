@@ -12,7 +12,19 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type UserRole = 'admin' | 'hr_manager' | 'hr_staff' | 'employee'
 export type EmployeeStatusRow = 'Active' | 'Inactive' | 'On Leave'
-export type ActivityTypeRow = 'system' | 'employee-update' | 'auth' | 'role-change'
+export type ActivityTypeRow = 'system' | 'employee-update' | 'auth' | 'role-change' | 'announcement'
+export type AnnouncementTypeRow =
+  | 'general'
+  | 'important'
+  | 'holiday'
+  | 'company_event'
+  | 'hr_information'
+  | 'policy'
+  | 'appreciation'
+  | 'motivation'
+export type AnnouncementPriorityRow = 'normal' | 'important' | 'urgent'
+export type AnnouncementStatusRow = 'draft' | 'published' | 'archived'
+export type AnnouncementAudienceRow = 'everyone' | 'employee' | 'hr_staff' | 'hr_manager' | 'admin'
 
 export interface Database {
   public: {
@@ -140,6 +152,75 @@ export interface Database {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          id: string
+          title: string
+          message: string
+          type: AnnouncementTypeRow
+          priority: AnnouncementPriorityRow
+          audience: AnnouncementAudienceRow
+          status: AnnouncementStatusRow
+          publish_at: string
+          expires_at: string | null
+          event_date: string | null
+          created_by: string | null
+          updated_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          message: string
+          type?: AnnouncementTypeRow
+          priority?: AnnouncementPriorityRow
+          audience?: AnnouncementAudienceRow
+          status?: AnnouncementStatusRow
+          publish_at?: string
+          expires_at?: string | null
+          event_date?: string | null
+          created_by?: string | null
+          updated_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          message?: string
+          type?: AnnouncementTypeRow
+          priority?: AnnouncementPriorityRow
+          audience?: AnnouncementAudienceRow
+          status?: AnnouncementStatusRow
+          publish_at?: string
+          expires_at?: string | null
+          event_date?: string | null
+          created_by?: string | null
+          updated_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      announcement_reads: {
+        Row: {
+          announcement_id: string
+          profile_id: string
+          read_at: string
+        }
+        Insert: {
+          announcement_id: string
+          profile_id: string
+          read_at?: string
+        }
+        Update: {
+          announcement_id?: string
+          profile_id?: string
+          read_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     // Phase 2: the SECURITY DEFINER RPCs from
@@ -245,11 +326,56 @@ export interface Database {
           email: string
         }[]
       }
+      create_announcement: {
+        Args: {
+          p_title: string
+          p_message: string
+          p_type: AnnouncementTypeRow
+          p_priority: AnnouncementPriorityRow
+          p_audience: AnnouncementAudienceRow
+          p_publish_at: string
+          p_expires_at: string | null
+          p_event_date: string | null
+          p_status: AnnouncementStatusRow
+        }
+        Returns: Database['public']['Tables']['announcements']['Row']
+      }
+      update_announcement: {
+        Args: {
+          p_id: string
+          p_title: string
+          p_message: string
+          p_type: AnnouncementTypeRow
+          p_priority: AnnouncementPriorityRow
+          p_audience: AnnouncementAudienceRow
+          p_publish_at: string
+          p_expires_at: string | null
+          p_event_date: string | null
+        }
+        Returns: Database['public']['Tables']['announcements']['Row']
+      }
+      set_announcement_status: {
+        Args: {
+          p_id: string
+          p_status: AnnouncementStatusRow
+        }
+        Returns: Database['public']['Tables']['announcements']['Row']
+      }
+      delete_announcement: {
+        Args: {
+          p_id: string
+        }
+        Returns: null
+      }
     }
     Enums: {
       user_role: UserRole
       employee_status: EmployeeStatusRow
       activity_type: ActivityTypeRow
+      announcement_type: AnnouncementTypeRow
+      announcement_priority: AnnouncementPriorityRow
+      announcement_status: AnnouncementStatusRow
+      announcement_audience: AnnouncementAudienceRow
     }
   }
 }
@@ -258,3 +384,5 @@ export type DepartmentRow = Database['public']['Tables']['departments']['Row']
 export type ProfileRow = Database['public']['Tables']['profiles']['Row']
 export type EmployeeRow = Database['public']['Tables']['employees']['Row']
 export type ActivityLogRow = Database['public']['Tables']['activity_logs']['Row']
+export type AnnouncementRow = Database['public']['Tables']['announcements']['Row']
+export type AnnouncementReadRow = Database['public']['Tables']['announcement_reads']['Row']

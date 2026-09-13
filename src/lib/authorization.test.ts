@@ -13,9 +13,10 @@ describe('getCapabilities', () => {
     expect(caps.canManageDepartments).toBe(true)
     expect(caps.canManageRoles).toBe(true)
     expect(caps.canManageEmployeeLinking).toBe(true)
+    expect(caps.canManageAnnouncements).toBe(true)
   })
 
-  it('grants hr_manager full employee/department management and employee-profile linking, but not delete or role management', () => {
+  it('grants hr_manager full employee/department management and employee-profile linking, but not delete, role management, or announcement management', () => {
     const caps = getCapabilities('hr_manager')
     expect(caps.canCreateEmployee).toBe(true)
     expect(caps.canEditEmployee).toBe(true)
@@ -24,6 +25,7 @@ describe('getCapabilities', () => {
     expect(caps.canManageEmployeeLinking).toBe(true)
     expect(caps.canDeleteEmployee).toBe(false)
     expect(caps.canManageRoles).toBe(false)
+    expect(caps.canManageAnnouncements).toBe(false)
   })
 
   it('grants hr_staff create/edit but not status changes, delete, department management, or profile linking', () => {
@@ -37,6 +39,7 @@ describe('getCapabilities', () => {
     expect(caps.canManageDepartments).toBe(false)
     expect(caps.canManageRoles).toBe(false)
     expect(caps.canManageEmployeeLinking).toBe(false)
+    expect(caps.canManageAnnouncements).toBe(false)
   })
 
   it('grants employee only self-service, nothing organization-wide', () => {
@@ -53,6 +56,7 @@ describe('getCapabilities', () => {
     expect(caps.canViewInsights).toBe(false)
     expect(caps.canManageRoles).toBe(false)
     expect(caps.canManageEmployeeLinking).toBe(false)
+    expect(caps.canManageAnnouncements).toBe(false)
   })
 
   it('grants a null role (no session/profile) nothing at all', () => {

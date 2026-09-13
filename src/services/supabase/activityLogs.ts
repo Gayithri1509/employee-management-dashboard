@@ -42,10 +42,16 @@ export async function fetchActivityLogs(limit = 50): Promise<ActivityLogsResult>
  * 'auth' rows today (see docs/database-architecture.md), but the mapper
  * still handles it defensively, the same "skip and report" pattern used by
  * mapEmployeeRowToEmployee for unrecognized values. 'role-change' rows
- * (written by set_user_role(), migration 0018) map like any other type.
+ * (written by set_user_role(), migration 0018) and 'announcement' rows
+ * (written by the announcement RPCs, migration 0021) map like any other type.
  */
 export function mapActivityLogRowToEntry(row: ActivityLogRow): ActivityEntry | null {
-  if (row.type !== 'system' && row.type !== 'employee-update' && row.type !== 'role-change') {
+  if (
+    row.type !== 'system' &&
+    row.type !== 'employee-update' &&
+    row.type !== 'role-change' &&
+    row.type !== 'announcement'
+  ) {
     return null
   }
 

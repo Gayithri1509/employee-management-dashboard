@@ -6,6 +6,7 @@ import { useOrgData } from '../hooks/useOrgData'
 import { getNavItems } from '../types/navigation'
 import type { AppOutletContext } from './appOutletContext'
 import { formatRoleLabel } from '../utils/formatting'
+import { markAnnouncementRead, markAllAnnouncementsRead } from '../services/supabase/announcements'
 import Sidebar from '../components/layout/Sidebar'
 import TopHeader from '../components/layout/TopHeader'
 import Toast from '../components/Toast'
@@ -41,8 +42,29 @@ function AppLayout() {
     showToast: setToastMessage,
   }
 
+  async function handleMarkAnnouncementRead(announcementId: string) {
+    if (!user) return
+    const result = await markAnnouncementRead(announcementId, user.id)
+    if (result.error) {
+      setToastMessage(result.error)
+      return
+    }
+    void orgData.refreshAnnouncements()
+  }
+
+  async function handleMarkAllAnnouncementsRead() {
+    if (!user) return
+    const unreadIds = orgData.announcements.filter((a) => !orgData.readAnnouncementIds.has(a.id)).map((a) => a.id)
+    const result = await markAllAnnouncementsRead(unreadIds, user.id)
+    if (result.error) {
+      setToastMessage(result.error)
+      return
+    }
+    void orgData.refreshAnnouncements()
+  }
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-canvas">
       <Sidebar
         navItems={navItems}
         displayName={displayName}
@@ -52,12 +74,17 @@ function AppLayout() {
         onCloseMobile={() => setIsMobileNavOpen(false)}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col bg-gradient-to-b from-slate-50 via-white to-indigo-50/30">
+      <div className="flex min-w-0 flex-1 flex-col bg-gradient-to-b from-canvas via-canvas to-canvas-deep">
         <TopHeader
           onOpenMobileNav={() => setIsMobileNavOpen(true)}
           displayName={displayName}
           showOrgControls={capabilities.canViewEmployees}
           activityCount={orgData.activityEntries.length}
+          announcements={orgData.announcements}
+          readAnnouncementIds={orgData.readAnnouncementIds}
+          canManageAnnouncements={capabilities.canManageAnnouncements}
+          onMarkAnnouncementRead={(id) => void handleMarkAnnouncementRead(id)}
+          onMarkAllAnnouncementsRead={() => void handleMarkAllAnnouncementsRead()}
         />
 
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">

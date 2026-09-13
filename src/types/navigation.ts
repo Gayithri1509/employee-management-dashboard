@@ -10,6 +10,7 @@ export type RouteId =
   | 'departments'
   | 'activity'
   | 'insights'
+  | 'communications'
   | 'my-profile'
   | 'settings'
   | 'users'
@@ -54,6 +55,9 @@ export function getNavItems(capabilities: Capabilities): NavItem[] {
   }
   if (capabilities.canViewInsights) {
     items.push({ id: 'insights', label: 'Insights', path: '/insights' })
+  }
+  if (capabilities.canManageAnnouncements) {
+    items.push({ id: 'communications', label: 'Company Communications', path: '/communications' })
   }
   if (capabilities.canManageRoles) {
     items.push({ id: 'users', label: 'User & Access', path: '/users' })

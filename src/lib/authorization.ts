@@ -22,6 +22,8 @@ export interface Capabilities {
   canManageEmployeeLinking: boolean
   canViewActivity: boolean
   canViewInsights: boolean
+  /** Create/edit/publish/archive/delete Company Communications. Admin only -- see supabase/migrations/0021_announcements.sql; the capability model has no precedent for extending hr_manager into content/communications management. */
+  canManageAnnouncements: boolean
   canViewOwnProfile: boolean
   canEditOwnProfile: boolean
   /** Every real account gets Settings (it's about their own account, not org data) -- false only for the no-session/no-profile default. */
@@ -40,6 +42,7 @@ const NONE: Capabilities = {
   canManageEmployeeLinking: false,
   canViewActivity: false,
   canViewInsights: false,
+  canManageAnnouncements: false,
   canViewOwnProfile: false,
   canEditOwnProfile: false,
   canViewSettings: false,
@@ -58,6 +61,7 @@ const ADMIN: Capabilities = {
   canManageEmployeeLinking: true,
   canViewActivity: true,
   canViewInsights: true,
+  canManageAnnouncements: true,
   canViewSettings: true,
 }
 
@@ -65,6 +69,9 @@ const HR_MANAGER: Capabilities = {
   ...ADMIN,
   canDeleteEmployee: false,
   canManageRoles: false,
+  // Communications/content management is deliberately not extended to
+  // hr_manager -- see the canManageAnnouncements doc comment above.
+  canManageAnnouncements: false,
 }
 
 const HR_STAFF: Capabilities = {

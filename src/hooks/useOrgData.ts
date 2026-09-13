@@ -1,25 +1,32 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Employee } from '../types/employee'
 import type { ActivityEntry } from '../types/activity'
+import type { Announcement } from '../types/announcement'
 import type { DepartmentRow } from '../types/database'
 import { fetchEmployeesWithDepartments } from '../services/supabase/employees'
 import { fetchDepartments, buildDepartmentNameById } from '../services/supabase/departments'
 import { fetchActivityEntries } from '../services/supabase/activityLogs'
+import { fetchAnnouncements, fetchMyReadAnnouncementIds } from '../services/supabase/announcements'
 
 export interface OrgData {
   employees: Employee[]
   departments: DepartmentRow[]
   activityEntries: ActivityEntry[]
+  announcements: Announcement[]
+  readAnnouncementIds: Set<string>
   departmentNameById: Record<string, string>
   loading: boolean
   employeesError: string | null
   departmentsError: string | null
   activityError: string | null
+  announcementsError: string | null
   /** Re-fetches everything. Call after any employee/department mutation so the UI reflects the real database state. */
   refreshAll: () => Promise<void>
   /** Re-fetches with a visible loading indicator -- used by the full-page ErrorState's Retry action. */
   retryAll: () => void
   retryActivity: () => Promise<void>
+  /** Re-fetches only announcements + the caller's read state -- used after marking one/all as read, so a full org-data refetch isn't needed for that. */
+  refreshAnnouncements: () => Promise<void>
 }
 
 /**
@@ -33,11 +40,14 @@ export function useOrgData(onWarning: (message: string) => void): OrgData {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [departments, setDepartments] = useState<DepartmentRow[]>([])
   const [activityEntries, setActivityEntries] = useState<ActivityEntry[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [readAnnouncementIds, setReadAnnouncementIds] = useState<Set<string>>(new Set())
 
   const [loading, setLoading] = useState(true)
   const [employeesError, setEmployeesError] = useState<string | null>(null)
   const [departmentsError, setDepartmentsError] = useState<string | null>(null)
   const [activityError, setActivityError] = useState<string | null>(null)
+  const [announcementsError, setAnnouncementsError] = useState<string | null>(null)
 
   // No setState call happens before the first `await` here on purpose: the
   // mount effect below calls this directly, and a synchronous setState in
@@ -49,10 +59,12 @@ export function useOrgData(onWarning: (message: string) => void): OrgData {
   // render -- setState setters are referentially stable, and `onWarning` is
   // expected to be stable too (AppLayout passes setToastMessage directly).
   const refreshAll = useCallback(async () => {
-    const [employeesResult, departmentsResult, activityResult] = await Promise.all([
+    const [employeesResult, departmentsResult, activityResult, announcementsResult, readIdsResult] = await Promise.all([
       fetchEmployeesWithDepartments(),
       fetchDepartments(),
       fetchActivityEntries(),
+      fetchAnnouncements(),
+      fetchMyReadAnnouncementIds(),
     ])
 
     if (employeesResult.data) {
@@ -85,8 +97,35 @@ export function useOrgData(onWarning: (message: string) => void): OrgData {
       setActivityError(activityResult.error ?? 'Failed to load activity log.')
     }
 
+    if (announcementsResult.data) {
+      setAnnouncements(announcementsResult.data)
+      setAnnouncementsError(null)
+    } else {
+      setAnnouncements([])
+      setAnnouncementsError(announcementsResult.error ?? 'Failed to load company communications.')
+    }
+
+    if (readIdsResult.data) {
+      setReadAnnouncementIds(readIdsResult.data)
+    }
+
     setLoading(false)
   }, [onWarning])
+
+  const refreshAnnouncements = useCallback(async () => {
+    const [announcementsResult, readIdsResult] = await Promise.all([fetchAnnouncements(), fetchMyReadAnnouncementIds()])
+
+    if (announcementsResult.data) {
+      setAnnouncements(announcementsResult.data)
+      setAnnouncementsError(null)
+    } else {
+      setAnnouncementsError(announcementsResult.error ?? 'Failed to load company communications.')
+    }
+
+    if (readIdsResult.data) {
+      setReadAnnouncementIds(readIdsResult.data)
+    }
+  }, [])
 
   useEffect(() => {
     void refreshAll()
@@ -122,13 +161,17 @@ export function useOrgData(onWarning: (message: string) => void): OrgData {
     employees,
     departments,
     activityEntries,
+    announcements,
+    readAnnouncementIds,
     departmentNameById,
     loading,
     employeesError,
     departmentsError,
     activityError,
+    announcementsError,
     refreshAll,
     retryAll,
     retryActivity,
+    refreshAnnouncements,
   }
 }

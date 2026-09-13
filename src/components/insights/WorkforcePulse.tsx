@@ -9,8 +9,8 @@ interface WorkforcePulseProps {
 
 function WorkforcePulse({ active, onLeave, inactive, total }: WorkforcePulseProps) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-md ring-1 ring-slate-900/[0.04] transition-shadow duration-200 hover:shadow-lg">
-      <h3 className="text-sm font-semibold text-slate-800">Workforce Health</h3>
+    <div className="surface-elevated flex h-full flex-col p-6">
+      <h3 className="text-[15px] font-semibold text-slate-800">Workforce Health</h3>
       <p className="mt-0.5 text-xs text-slate-400">Current status distribution across your team</p>
 
       <div className="mt-5 flex flex-1 items-center">

@@ -175,16 +175,16 @@ function InsightsPage() {
 
       {/* Workforce Status + Joining Trend */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md ring-1 ring-slate-900/[0.04] transition-shadow duration-200 hover:shadow-lg lg:col-span-2">
-          <h2 className="text-sm font-semibold text-slate-800">Workforce Status</h2>
+        <div className="surface-elevated p-6 lg:col-span-2">
+          <h2 className="text-[15px] font-semibold text-slate-800">Workforce Status</h2>
           <p className="mt-0.5 text-xs text-slate-400">Where your workforce stands right now</p>
           <div className="mt-5">
             <StatusDonut active={activeCount} onLeave={onLeaveCount} inactive={inactiveCount} total={total} />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm lg:col-span-3">
-          <h2 className="text-sm font-semibold text-slate-800">Employee Joining Trend</h2>
+        <div className="surface p-5 lg:col-span-3">
+          <h2 className="text-[15px] font-semibold text-slate-800">Employee Joining Trend</h2>
           <p className="mt-0.5 text-xs text-slate-400">Employees joined, by year</p>
           <div className="mt-5">
             {joiningTrend.length === 0 ? (
@@ -197,8 +197,8 @@ function InsightsPage() {
       </div>
 
       {/* Department Analytics */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md ring-1 ring-slate-900/[0.04] transition-shadow duration-200 hover:shadow-lg">
-        <h2 className="text-sm font-semibold text-slate-800">Department Workforce</h2>
+      <div className="surface-elevated p-6">
+        <h2 className="text-[15px] font-semibold text-slate-800">Department Workforce</h2>
         <p className="mt-0.5 text-xs text-slate-400">
           Headcount by department, sorted by size &mdash; select a department to view its employees
         </p>
@@ -213,8 +213,8 @@ function InsightsPage() {
 
       {/* Tenure Analytics + Workforce Health/Attention */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-slate-800">Workforce Tenure</h2>
+        <div className="surface p-5">
+          <h2 className="text-[15px] font-semibold text-slate-800">Workforce Tenure</h2>
           <p className="mt-0.5 text-xs text-slate-400">How long your workforce has been with you</p>
           <div className="mt-5">
             <TenureHistogram buckets={tenureBuckets} />
@@ -227,7 +227,7 @@ function InsightsPage() {
               <AlertTriangle className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-sm font-semibold text-slate-800">Workforce Attention</h2>
+              <h2 className="text-[15px] font-semibold text-slate-800">Workforce Attention</h2>
               <p className="text-xs text-slate-400">Employees who may need follow-up</p>
             </div>
           </div>
@@ -275,7 +275,7 @@ function InsightsPage() {
             <Sparkles className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Data-Driven Observations</h2>
+            <h2 className="text-[15px] font-semibold text-slate-800">Data-Driven Observations</h2>
             <p className="text-xs text-slate-400">Plain-language summary of the data above</p>
           </div>
         </div>

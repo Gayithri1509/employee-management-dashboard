@@ -3,13 +3,16 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import MyProfilePage from './MyProfilePage'
 import { useAppOutletContext } from '../layouts/appOutletContext'
+import { useAuth } from '../contexts/AuthContext'
 import { updateEmployeeSelf } from '../services/supabase/employees'
 import type { Employee } from '../types/employee'
 
 vi.mock('../layouts/appOutletContext')
+vi.mock('../contexts/AuthContext')
 vi.mock('../services/supabase/employees')
 
 const mockedUseAppOutletContext = vi.mocked(useAppOutletContext)
+const mockedUseAuth = vi.mocked(useAuth)
 const mockedUpdateEmployeeSelf = vi.mocked(updateEmployeeSelf)
 
 const myEmployee: Employee = {
@@ -30,14 +33,18 @@ function baseContext(overrides: Partial<ReturnType<typeof useAppOutletContext>> 
     employees: [],
     departments: [],
     activityEntries: [],
+    announcements: [],
+    readAnnouncementIds: new Set<string>(),
     departmentNameById: {},
     loading: false,
     employeesError: null,
     departmentsError: null,
     activityError: null,
+    announcementsError: null,
     refreshAll: vi.fn(),
     retryAll: vi.fn(),
     retryActivity: vi.fn(),
+    refreshAnnouncements: vi.fn(),
     capabilities: {} as never,
     showToast: vi.fn(),
     ...overrides,
@@ -47,6 +54,10 @@ function baseContext(overrides: Partial<ReturnType<typeof useAppOutletContext>> 
 beforeEach(() => {
   mockedUseAppOutletContext.mockReset()
   mockedUpdateEmployeeSelf.mockReset()
+  mockedUseAuth.mockReturnValue({
+    role: 'employee',
+    profile: { id: 'user-1', full_name: 'Priya Nair', role: 'employee', created_at: 't', updated_at: 't' },
+  } as never)
 })
 
 describe('MyProfilePage', () => {

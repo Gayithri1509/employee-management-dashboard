@@ -10,6 +10,7 @@ import EmployeesPage from './pages/EmployeesPage'
 import DepartmentsPage from './pages/DepartmentsPage'
 import ActivityPage from './pages/ActivityPage'
 import InsightsPage from './pages/InsightsPage'
+import CommunicationsPage from './pages/CommunicationsPage'
 import MyProfilePage from './pages/MyProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import UsersPage from './pages/UsersPage'
@@ -83,6 +84,14 @@ function AuthGate() {
           element={
             <RequireCapability capability="canViewInsights">
               <InsightsPage />
+            </RequireCapability>
+          }
+        />
+        <Route
+          path="/communications"
+          element={
+            <RequireCapability capability="canManageAnnouncements">
+              <CommunicationsPage />
             </RequireCapability>
           }
         />

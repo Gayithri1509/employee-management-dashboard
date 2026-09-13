@@ -61,14 +61,14 @@ function EmployeeDirectory({
   onResetFilters,
 }: EmployeeDirectoryProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md ring-1 ring-slate-900/[0.04] sm:p-6">
+    <div className="surface-elevated p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/70 text-indigo-600 ring-1 ring-indigo-100">
             <Users className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Employee Directory</h2>
+            <h2 className="text-[15px] font-semibold text-slate-800">Employee Directory</h2>
             <p className="text-xs text-slate-400">
               {employees.length} of {totalCount} {totalCount === 1 ? 'employee' : 'employees'} shown
             </p>

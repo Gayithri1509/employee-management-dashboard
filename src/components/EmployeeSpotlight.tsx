@@ -9,16 +9,16 @@ interface EmployeeSpotlightProps {
 
 function EmployeeSpotlight({ employee }: EmployeeSpotlightProps) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md">
-      <p className="text-xs font-medium uppercase tracking-wide text-indigo-500">Employee Spotlight</p>
+    <div className="surface-elevated flex h-full flex-col p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-brand">Employee Spotlight</p>
       <p className="mt-0.5 text-xs text-slate-400">Longest-tenured member of your team</p>
 
       <div className="mt-5 flex items-center gap-4">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700">
+        <span className="brand-wash flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white shadow-[0_4px_12px_-2px_rgba(79,70,229,0.4)]">
           {getInitials(employee.name)}
         </span>
         <div className="min-w-0">
-          <h4 className="truncate text-base font-semibold text-slate-800">{employee.name}</h4>
+          <h4 className="truncate text-[15px] font-semibold text-slate-800">{employee.name}</h4>
           <p className="truncate text-xs text-slate-500">{employee.role}</p>
         </div>
         <div className="ml-auto shrink-0">

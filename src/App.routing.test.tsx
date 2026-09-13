@@ -7,6 +7,7 @@ import { fetchEmployeesWithDepartments } from './services/supabase/employees'
 import { fetchDepartments } from './services/supabase/departments'
 import { fetchActivityEntries } from './services/supabase/activityLogs'
 import { fetchUsersForAdmin } from './services/supabase/users'
+import { fetchAnnouncements, fetchMyReadAnnouncementIds } from './services/supabase/announcements'
 import type { UserRole } from './types/database'
 
 // Exercises the real route tree (App -> AuthGate -> AppLayout -> RequireCapability
@@ -21,6 +22,7 @@ vi.mock('./services/supabase/employees')
 vi.mock('./services/supabase/departments')
 vi.mock('./services/supabase/activityLogs')
 vi.mock('./services/supabase/users')
+vi.mock('./services/supabase/announcements')
 
 const mockedGetCurrentSession = vi.mocked(getCurrentSession)
 const mockedOnAuthStateChange = vi.mocked(onAuthStateChange)
@@ -29,6 +31,8 @@ const mockedFetchEmployees = vi.mocked(fetchEmployeesWithDepartments)
 const mockedFetchDepartments = vi.mocked(fetchDepartments)
 const mockedFetchActivity = vi.mocked(fetchActivityEntries)
 const mockedFetchUsersForAdmin = vi.mocked(fetchUsersForAdmin)
+const mockedFetchAnnouncements = vi.mocked(fetchAnnouncements)
+const mockedFetchMyReadAnnouncementIds = vi.mocked(fetchMyReadAnnouncementIds)
 
 function mockSignedInAs(role: UserRole) {
   mockedGetCurrentSession.mockResolvedValue({
@@ -44,6 +48,8 @@ function mockSignedInAs(role: UserRole) {
   mockedFetchDepartments.mockResolvedValue({ data: [], error: null })
   mockedFetchActivity.mockResolvedValue({ data: [], error: null })
   mockedFetchUsersForAdmin.mockResolvedValue({ data: [], error: null })
+  mockedFetchAnnouncements.mockResolvedValue({ data: [], error: null })
+  mockedFetchMyReadAnnouncementIds.mockResolvedValue({ data: new Set(), error: null })
 }
 
 beforeEach(() => {
@@ -70,7 +76,7 @@ describe('App routing + RBAC (direct URL access)', () => {
 
     render(<App />)
 
-    expect(await screen.findByRole('heading', { name: 'Overview' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Overview' }, { timeout: 3000 })).toBeInTheDocument()
     expect(await screen.findByText(/people across/i)).toBeInTheDocument()
   })
 

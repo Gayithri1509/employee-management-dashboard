@@ -24,6 +24,8 @@ const SAFE_MESSAGE_PATTERNS: RegExp[] = [
   /cannot /i,
   /can't/i,
   /must be different/i,
+  /must be after/i,
+  /must be archived/i,
   /^only /i,
   /^no /i,
   /not linked/i,

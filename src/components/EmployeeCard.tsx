@@ -51,7 +51,7 @@ function EmployeeCard({
   const isLinked = employee.profileId !== null
 
   return (
-    <div className="group flex h-full flex-col rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white hover:shadow-md motion-reduce:hover:translate-y-0">
+    <div className="group flex h-full flex-col rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-white hover:shadow-elevated motion-reduce:hover:translate-y-0">
       <div className="flex items-start gap-3">
         <span
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${avatarColorFor(employee.id)}`}
@@ -78,7 +78,7 @@ function EmployeeCard({
           }`}
         >
           {isLinked ? <Link2 className="h-3 w-3" /> : <Unlink className="h-3 w-3" />}
-          {isLinked ? 'Linked' : 'Not linked'}
+          {isLinked ? 'Account Linked' : 'Account Not Linked'}
         </span>
       </div>
 

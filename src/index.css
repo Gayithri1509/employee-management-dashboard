@@ -1,5 +1,114 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   EMS DESIGN SYSTEM
+   A small set of design tokens (typography, color, elevation) that every
+   page draws from, so the product reads as one coherent visual language
+   instead of independently-styled pages. Tailwind v4's @theme turns each
+   token below into a real utility class (font-sans, bg-canvas, shadow-card,
+   etc.) -- nothing here is a one-off, everything is reusable.
+   ============================================================================ */
+
+@theme {
+  /* Typography -- Plus Jakarta Sans (self-hosted via @fontsource, imported
+     in main.tsx) replaces the browser-default sans stack everywhere. */
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Page canvas: a soft, cool near-white -- never pure white -- so elevated
+     white surfaces have something to visibly sit above. */
+  --color-canvas: #f5f6fb;
+  --color-canvas-deep: #eef0f9;
+
+  /* Sidebar: a genuine deep midnight-navy, not Tailwind's default slate-900. */
+  --color-ink: #0a0f1f;
+  --color-ink-soft: #121a30;
+
+  /* Brand accents -- electric indigo as primary, violet/cyan reserved for
+     secondary emphasis (a gradient underlay, a chart accent) so they read
+     as intentional rather than decorative noise. */
+  --color-brand: #4f46e5;
+  --color-brand-soft: #eef2ff;
+  --color-accent-violet: #7c3aed;
+  --color-accent-cyan: #0891b2;
+
+  /* Layered elevation -- soft, multi-stop shadows (never Tailwind's flat
+     default shadow-sm/md) so a card reads as physically raised above the
+     canvas rather than just outlined. */
+  --shadow-surface: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.03);
+  --shadow-elevated: 0 1px 2px rgba(15, 23, 42, 0.04), 0 18px 32px -16px rgba(15, 23, 42, 0.14);
+  --shadow-floating:
+    0 2px 4px rgba(15, 23, 42, 0.06), 0 28px 48px -18px rgba(79, 70, 229, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  --shadow-sidebar: 4px 0 24px -8px rgba(2, 6, 23, 0.35);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+  }
+}
+
+@layer components {
+  /* Layer 1 -- the default resting surface every card/panel used to use
+     (bg-white + a flat border). Kept as the baseline everything else is
+     compared against. */
+  .surface {
+    @apply rounded-2xl border border-slate-200/70 bg-white;
+    box-shadow: var(--shadow-surface);
+  }
+
+  /* Layer 2 -- an elevated surface: primary analytics panels, the sole main
+     container on a page (tables, the profile card). A crisper border, a
+     genuinely layered shadow instead of Tailwind's flat shadow-md, and a
+     hairline inner highlight along the top edge for a subtle "raised"
+     read -- this is the depth cue, not a gimmick. */
+  .surface-elevated {
+    @apply relative rounded-2xl border border-slate-200 bg-white;
+    box-shadow: var(--shadow-elevated);
+  }
+  .surface-elevated::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Layer 3 -- floating/interactive: KPI tiles, anything meant to feel like
+     it hovers above the page and responds to the cursor. */
+  .surface-floating {
+    @apply relative rounded-2xl border border-slate-200/80 bg-white transition-all duration-200;
+    box-shadow: var(--shadow-elevated);
+  }
+  .surface-floating:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-floating);
+  }
+
+  /* A restrained brand gradient -- for the one or two places per page that
+     deserve real emphasis (an executive header rule, a KPI icon chip),
+     never the whole page. */
+  .brand-wash {
+    background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-accent-violet) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface-floating:hover {
+    transform: none;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

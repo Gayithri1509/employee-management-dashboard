@@ -2,7 +2,7 @@
 // Kept in its own file (mirroring src/types/employee.ts) because this is a
 // distinct data domain from Employee, not because every type needs a file.
 
-export type ActivityType = 'system' | 'employee-update' | 'role-change'
+export type ActivityType = 'system' | 'employee-update' | 'role-change' | 'announcement'
 
 export interface ActivityEntry {
   id: string
