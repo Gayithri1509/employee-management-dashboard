@@ -76,23 +76,17 @@ function MyProfilePage() {
         <p className="text-sm text-slate-500">Your personal employee information.</p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-        <div className="relative bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-6 py-8 text-white">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl"
-          />
-          <div className="relative flex items-center gap-4">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/10 text-xl font-semibold text-white ring-1 ring-white/20">
-              {getInitials(myEmployee.name)}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="truncate text-lg font-semibold text-white">{myEmployee.name}</h2>
-                <StatusBadge status={myEmployee.status} />
-              </div>
-              <p className="truncate text-sm text-slate-300">{myEmployee.role}</p>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md ring-1 ring-slate-900/[0.04]">
+        <div className="flex items-center gap-4 border-b border-slate-100 bg-slate-50/60 px-6 py-6">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xl font-semibold text-indigo-700">
+            {getInitials(myEmployee.name)}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="truncate text-lg font-semibold text-slate-900">{myEmployee.name}</h2>
+              <StatusBadge status={myEmployee.status} />
             </div>
+            <p className="truncate text-sm text-slate-500">{myEmployee.role}</p>
           </div>
         </div>
 

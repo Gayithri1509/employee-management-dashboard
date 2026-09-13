@@ -50,7 +50,7 @@ function ActivityLogPanel({ entries }: ActivityLogPanelProps) {
   const groups = groupByDay(entries)
 
   return (
-    <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm sm:p-6">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md ring-1 ring-slate-900/[0.04] sm:p-6">
       <div className="flex items-center gap-2">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
           <History className="h-4 w-4" />

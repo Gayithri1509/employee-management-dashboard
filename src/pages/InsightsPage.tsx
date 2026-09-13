@@ -175,7 +175,7 @@ function InsightsPage() {
 
       {/* Workforce Status + Joining Trend */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm lg:col-span-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md ring-1 ring-slate-900/[0.04] transition-shadow duration-200 hover:shadow-lg lg:col-span-2">
           <h2 className="text-sm font-semibold text-slate-800">Workforce Status</h2>
           <p className="mt-0.5 text-xs text-slate-400">Where your workforce stands right now</p>
           <div className="mt-5">
@@ -197,7 +197,7 @@ function InsightsPage() {
       </div>
 
       {/* Department Analytics */}
-      <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md ring-1 ring-slate-900/[0.04] transition-shadow duration-200 hover:shadow-lg">
         <h2 className="text-sm font-semibold text-slate-800">Department Workforce</h2>
         <p className="mt-0.5 text-xs text-slate-400">
           Headcount by department, sorted by size &mdash; select a department to view its employees

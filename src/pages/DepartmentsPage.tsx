@@ -164,7 +164,7 @@ function DepartmentsPage() {
       {departments.length === 0 ? (
         <EmptyState icon={Building2} title="No departments yet" description="Add a department to get started." />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-md ring-1 ring-slate-900/[0.04]">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-slate-100 bg-slate-50/60 text-xs uppercase tracking-wide text-slate-400">
               <tr>

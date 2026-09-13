@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Building2, CalendarClock, History, UserCheck, UserPlus, Users, UserX } from 'lucide-react'
+import { Building2, History, UserCheck, UserPlus, Users } from 'lucide-react'
 import type { Employee } from '../types/employee'
 import { useAuth } from '../contexts/AuthContext'
 import { useAppOutletContext } from '../layouts/appOutletContext'
@@ -76,23 +76,19 @@ function OverviewPage() {
 
   return (
     <div className="scroll-mt-20 space-y-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-6 py-8 text-white shadow-sm sm:px-8">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl"
-        />
-        <p className="relative text-xs font-medium uppercase tracking-wide text-indigo-300">
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wide text-indigo-500">
           {greeting}{firstName ? `, ${firstName}` : ''}
         </p>
-        <h2 className="relative mt-1 max-w-xl text-2xl font-semibold sm:text-3xl">
+        <p className="mt-1 text-sm text-slate-500">
           {employees.length} people across {departmentCount} {departmentCount === 1 ? 'department' : 'departments'}
           {onLeaveCount > 0 || inactiveCount > 0
             ? ` — ${activeCount} active, ${onLeaveCount + inactiveCount} need attention.`
             : ' — everyone is active.'}
-        </h2>
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           label="Total Employees"
           value={employees.length}
@@ -107,8 +103,6 @@ function OverviewPage() {
           icon={UserCheck}
           accent="emerald"
         />
-        <KpiCard label="On Leave" value={onLeaveCount} helperText="Temporarily away" icon={CalendarClock} accent="amber" />
-        <KpiCard label="Inactive" value={inactiveCount} helperText="No longer active" icon={UserX} accent="rose" />
         <KpiCard
           label="Departments"
           value={departmentCount}
